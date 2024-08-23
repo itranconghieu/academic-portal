@@ -1,0 +1,973 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DBContext.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Ant</a> &gt; <a href="index.source.html" class="el_package">db</a> &gt; <span class="el_source">DBContext.java</span></div><h1>DBContext.java</h1><pre class="source lang-java linenums">// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+
+package db;
+
+import entity.Course;
+import entity.CourseGrade;
+import entity.Curriculum;
+import entity.Department;
+import entity.Exam;
+import entity.GradeCategory;
+import entity.GradeItem;
+import entity.Lecturer;
+import entity.Major;
+import transact.Request;
+import entity.Room;
+import entity.Semester;
+import entity.Student;
+import entity.TimeSlot;
+import java.sql.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import transact.Attend;
+import transact.CourseEnroll;
+import transact.Grade;
+
+/**
+ *
+ * @author End User
+ */
+public class DBContext extends Open {
+<span class="fc" id="L42">    public DBContext() throws ClassNotFoundException, SQLException {</span>
+        
+<span class="fc" id="L44">    }</span>
+    
+    public String  getUsername(String mail) throws SQLException {
+<span class="nc" id="L47">        String sql = &quot;select username\n&quot;</span>
+                + &quot;from (select studentId as username, email\n&quot;
+                + &quot;from Student\n&quot;
+                + &quot;union all\n&quot;
+                + &quot;select lecturerId, email\n&quot;
+                + &quot;from Lecturer) as #temp\n&quot;
+                + &quot;where email = ?;&quot;;
+<span class="nc" id="L54">        PreparedStatement p = cn.prepareStatement(sql);</span>
+<span class="nc" id="L55">        p.setString(1, mail);</span>
+<span class="nc" id="L56">        ResultSet rs = p.executeQuery();</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        if (rs.next()) {</span>
+<span class="nc" id="L58">            return rs.getString(&quot;username&quot;);</span>
+<span class="nc" id="L59">        } return null;</span>
+    }
+    
+<span class="fc" id="L62">    private final SimpleDateFormat df = new SimpleDateFormat(&quot;yyyy-MM-dd&quot;);</span>
+    public ArrayList&lt;String&gt; getClass(Semester semester, Course course) throws SQLException {
+<span class="fc" id="L64">        String sql = &quot;SELECT groupId\n&quot;</span>
+                + &quot;FROM Class\n&quot;
+                + &quot;WHERE semesterId = ? AND courseId = ?\n&quot;
+                + &quot;ORDER BY groupId ASC;&quot;;
+<span class="fc" id="L68">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="fc" id="L69">        ps.setInt(1, semester.getId());</span>
+<span class="fc" id="L70">        ps.setString(2, course.getId());</span>
+<span class="fc" id="L71">        ArrayList&lt;String&gt; classList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L72">        ResultSet rs = ps.executeQuery();</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">        while (rs.next()) {</span>
+<span class="fc" id="L74">            classList.add(rs.getString(&quot;groupId&quot;));</span>
+        }
+<span class="fc" id="L76">        return classList;</span>
+    }
+    
+    public Semester getSemester(Date date) throws SQLException, ParseException {
+<span class="nc" id="L80">        String sql = &quot;SELECT [semesterId]\n&quot;</span>
+                + &quot;  FROM [dbo].[Semester]\n&quot;
+                + &quot;WHERE ? BETWEEN startDate AND endDate&quot;;
+<span class="nc" id="L83">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="nc" id="L84">        ps.setString(1, df.format(date));</span>
+<span class="nc" id="L85">        Semester semester = new Semester();</span>
+<span class="nc" id="L86">        ResultSet rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">        if (rs.next()) {</span>
+<span class="nc" id="L88">            semester = this.getSemester(rs.getInt(&quot;semesterId&quot;));</span>
+        }
+<span class="nc" id="L90">        return semester;</span>
+    }
+    
+    public Semester getSemester(int id) throws SQLException, ParseException {
+<span class="fc" id="L94">        String sql = &quot;SELECT [semesterId]\n&quot;</span>
+                + &quot;      ,[range]\n&quot;
+                + &quot;      ,[year]\n&quot;
+                + &quot;      ,[startDate]\n&quot;
+                + &quot;      ,[endDate]\n&quot;
+                + &quot;  FROM [dbo].[Semester]&quot;
+                + &quot;WHERE semesterId = ?;&quot;;
+<span class="fc" id="L101">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="fc" id="L102">        ps.setInt(1, id);</span>
+<span class="fc" id="L103">        Semester s = new Semester();</span>
+<span class="fc" id="L104">        ResultSet rs = ps.executeQuery();</span>
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">        if (rs.next()) {</span>
+<span class="fc" id="L106">            s.setId(id);</span>
+<span class="fc" id="L107">            s.setRange(rs.getString(&quot;range&quot;));</span>
+<span class="fc" id="L108">            s.setYear(rs.getInt(&quot;year&quot;));</span>
+<span class="fc" id="L109">            s.setStartDate(df.parse(rs.getString(&quot;startDate&quot;)));</span>
+<span class="fc" id="L110">            s.setEndDate(df.parse(rs.getString(&quot;endDate&quot;)));</span>
+        }
+<span class="fc" id="L112">        return s;</span>
+    }
+    
+    public ArrayList&lt;Semester&gt; getSemesters(String studentId) throws SQLException, ParseException {
+<span class="nc" id="L116">        String sql = &quot;SELECT DISTINCT semesterId\n&quot;</span>
+                + &quot;FROM CourseEnroll\n&quot;
+                + &quot;WHERE studentId = ?;&quot;;
+<span class="nc" id="L119">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="nc" id="L120">        ps.setString(1, studentId);</span>
+<span class="nc" id="L121">        ArrayList&lt;Semester&gt; semesterList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L122">        ResultSet rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        while (rs.next()) {</span>
+<span class="nc" id="L124">            Semester s = this.getSemester(rs.getInt(&quot;semesterId&quot;));</span>
+<span class="nc" id="L125">            semesterList.add(s);</span>
+<span class="nc" id="L126">        }</span>
+<span class="nc" id="L127">        return semesterList;</span>
+    }
+
+    public Curriculum getCurriculum(Major major) throws SQLException {
+<span class="nc" id="L131">        String sql = &quot;SELECT [majorId]\n&quot;</span>
+                + &quot;      ,[courseId]\n&quot;
+                + &quot;      ,[termNo]\n&quot;
+                + &quot;  FROM [dbo].[Curriculum]\n&quot;
+                + &quot;WHERE majorId = ?\n&quot;
+                + &quot;ORDER BY termNo ASC;&quot;;
+<span class="nc" id="L137">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="nc" id="L138">        ps.setString(1, major.getId());</span>
+<span class="nc" id="L139">        Curriculum curriculum = new Curriculum();</span>
+<span class="nc" id="L140">        ResultSet rs = ps.executeQuery();</span>
+<span class="nc" id="L141">        curriculum.setMajor(major);</span>
+<span class="nc" id="L142">        ArrayList&lt;Course&gt; courseList = new ArrayList&lt;&gt;(); </span>
+<span class="nc" id="L143">        HashMap&lt;String, Integer&gt; courseMap = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">        while (rs.next()) {</span>
+<span class="nc" id="L145">            Course c = this.getCourse(rs.getString(&quot;courseId&quot;));</span>
+<span class="nc" id="L146">            courseList.add(c);</span>
+<span class="nc" id="L147">            courseMap.put(c.getId(), rs.getInt(&quot;termNo&quot;));</span>
+<span class="nc" id="L148">        }</span>
+<span class="nc" id="L149">        curriculum.setCourseList(courseList);</span>
+<span class="nc" id="L150">        curriculum.setCourseMap(courseMap);</span>
+<span class="nc" id="L151">        return curriculum;</span>
+    }
+    
+    public Major getMajor(String id) throws SQLException {
+<span class="fc" id="L155">        String sql = &quot;SELECT [majorId]\n&quot;</span>
+                + &quot;      ,[name]\n&quot;
+                + &quot;  FROM [dbo].[Major]\n&quot;
+                + &quot;WHERE majorId = ?;&quot;;
+<span class="fc" id="L159">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="fc" id="L160">        ps.setString(1, id);</span>
+<span class="fc" id="L161">        Major m = new Major();</span>
+<span class="fc" id="L162">        ResultSet rs = ps.executeQuery();</span>
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">        if (rs.next()) {</span>
+<span class="fc" id="L164">            m.setId(id);</span>
+<span class="fc" id="L165">            m.setName(rs.getString(&quot;name&quot;));</span>
+        }
+<span class="fc" id="L167">        return m;</span>
+    }
+    
+    public Department getDepartment(String id) throws SQLException {
+<span class="fc" id="L171">        String sql = &quot;SELECT [departmentId]\n&quot;</span>
+                + &quot;      ,[deanId]\n&quot;
+                + &quot;      ,[name]\n&quot;
+                + &quot;  FROM [dbo].[Department]\n&quot;
+                + &quot;WHERE departmentId = ?&quot;;
+<span class="fc" id="L176">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="fc" id="L177">        ps.setString(1, id);</span>
+<span class="fc" id="L178">        Department d = new Department();</span>
+<span class="fc" id="L179">        ResultSet rs = ps.executeQuery();</span>
+<span class="pc bpc" id="L180" title="1 of 2 branches missed.">        if (rs.next()) {</span>
+<span class="fc" id="L181">            d.setId(id);</span>
+<span class="fc" id="L182">            d.setName(rs.getString(&quot;name&quot;));</span>
+        }
+<span class="fc" id="L184">        return null;</span>
+    }
+<span class="fc" id="L186">    private final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern(&quot;HH:mm:ss&quot;);</span>
+    public ArrayList&lt;TimeSlot&gt; getTimeSlots() throws SQLException {
+<span class="nc" id="L188">        String sql = &quot;SELECT [slot]\n&quot;</span>
+                + &quot;      ,[startTime]\n&quot;
+                + &quot;      ,[endTime]\n&quot;
+                + &quot;  FROM [dbo].[TimeSlot];&quot;;
+<span class="nc" id="L192">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="nc" id="L193">        ArrayList&lt;TimeSlot&gt; tss = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L194">        ResultSet rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">        while (rs.next()) {</span>
+<span class="nc" id="L196">            TimeSlot ts = new TimeSlot();</span>
+<span class="nc" id="L197">            ts.setSlot(rs.getInt(&quot;slot&quot;));</span>
+<span class="nc" id="L198">            ts.setStartTime(LocalTime.parse(rs.getString(&quot;startTime&quot;)</span>
+<span class="nc" id="L199">                    .substring(0, 8), timeFormat));</span>
+<span class="nc" id="L200">            ts.setEndTime(LocalTime.parse(rs.getString(&quot;endTime&quot;)</span>
+<span class="nc" id="L201">                    .substring(0, 8), timeFormat));</span>
+<span class="nc" id="L202">            tss.add(ts);</span>
+<span class="nc" id="L203">        }</span>
+<span class="nc" id="L204">        return tss;</span>
+    }
+    public TimeSlot getTimeSlot(int slot) throws SQLException {
+<span class="fc" id="L207">        String sql = &quot;SELECT [slot]\n&quot;</span>
+                + &quot;      ,[startTime]\n&quot;
+                + &quot;      ,[endTime]\n&quot;
+                + &quot;  FROM [dbo].[TimeSlot]\n&quot;
+                + &quot;WHERE slot = ?\n&quot;;
+<span class="fc" id="L212">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="fc" id="L213">        ps.setInt(1, slot);</span>
+<span class="fc" id="L214">        TimeSlot ts = new TimeSlot();</span>
+<span class="fc" id="L215">        ResultSet rs = ps.executeQuery();</span>
+<span class="pc bpc" id="L216" title="1 of 2 branches missed.">        if (rs.next()) {</span>
+<span class="fc" id="L217">            ts.setSlot(slot);</span>
+<span class="fc" id="L218">            ts.setStartTime(LocalTime.parse(rs.getString(&quot;startTime&quot;)</span>
+<span class="fc" id="L219">                    .substring(0, 8), timeFormat));</span>
+<span class="fc" id="L220">            ts.setEndTime(LocalTime.parse(rs.getString(&quot;endTime&quot;)</span>
+<span class="fc" id="L221">                    .substring(0, 8), timeFormat));</span>
+        }
+<span class="fc" id="L223">        return ts;</span>
+    }
+    
+    public Room getRoom(String id) throws SQLException {
+<span class="fc" id="L227">        String sql = &quot;SELECT [roomId]\n&quot;</span>
+                + &quot;      ,[building]\n&quot;
+                + &quot;      ,[roomNumber]\n&quot;
+                + &quot;      ,[note]\n&quot;
+                + &quot;  FROM [dbo].[Room]\n&quot;
+                + &quot;WHERE roomId = ?;&quot;;
+<span class="fc" id="L233">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="fc" id="L234">        ps.setString(1, id);</span>
+<span class="fc" id="L235">        Room r = new Room();</span>
+<span class="fc" id="L236">        ResultSet rs = ps.executeQuery();</span>
+<span class="fc bfc" id="L237" title="All 2 branches covered.">        while (rs.next()) {</span>
+<span class="fc" id="L238">            r.setBuilding(rs.getString(&quot;building&quot;));</span>
+<span class="fc" id="L239">            r.setRoomNumber(rs.getInt(&quot;roomNumber&quot;));</span>
+<span class="fc" id="L240">            r.setNote(rs.getString(&quot;note&quot;));</span>
+        }
+<span class="fc" id="L242">        return r;</span>
+    }
+    
+    public Course getCourse(String id) throws SQLException {
+<span class="fc" id="L246">        String sql = &quot;SELECT [courseId]\n&quot;</span>
+                + &quot;      ,[departmentId]\n&quot;
+                + &quot;      ,[name]\n&quot;
+                + &quot;      ,[note]\n&quot;
+                + &quot;      ,[objective]\n&quot;
+                + &quot;      ,[resourceURL]\n&quot;
+                + &quot;      ,[prerequisite]\n&quot;
+                + &quot;      ,[credit]\n&quot;
+                + &quot;  FROM [dbo].[Course]\n&quot;
+                + &quot;WHERE courseId = ?;&quot;;
+<span class="fc" id="L256">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="fc" id="L257">        ps.setString(1, id);</span>
+<span class="fc" id="L258">        Course c = new Course();</span>
+<span class="fc" id="L259">        ResultSet rs = ps.executeQuery();</span>
+<span class="fc bfc" id="L260" title="All 2 branches covered.">        if (rs.next()) {</span>
+<span class="fc" id="L261">            c.setId(id);</span>
+<span class="fc" id="L262">            c.setDepartment(this.getDepartment(rs.getString(&quot;departmentId&quot;)));</span>
+<span class="fc" id="L263">            c.setName(rs.getString(&quot;name&quot;));</span>
+<span class="fc" id="L264">            c.setNote(rs.getString(&quot;note&quot;));</span>
+<span class="fc" id="L265">            c.setObjective(rs.getString(&quot;objective&quot;));</span>
+<span class="fc" id="L266">            c.setPrerequisite(rs.getString(&quot;prerequisite&quot;));</span>
+<span class="fc" id="L267">            c.setResourceURL(rs.getString(&quot;resourceURL&quot;));</span>
+<span class="fc" id="L268">            c.setCredit(rs.getInt(&quot;credit&quot;));</span>
+        }
+<span class="fc" id="L270">        return c;</span>
+    }
+    
+    public Lecturer getLecturer(String id) throws SQLException, ParseException {
+<span class="fc" id="L274">        String sql = &quot;SELECT [lecturerId]\n&quot;</span>
+                + &quot;      ,[departmentId]\n&quot;
+                + &quot;      ,[surname]\n&quot;
+                + &quot;      ,[middleName]\n&quot;
+                + &quot;      ,[givenName]\n&quot;
+                + &quot;      ,[dateOfBirth]\n&quot;
+                + &quot;      ,[gender]\n&quot;
+                + &quot;      ,[address]\n&quot;
+                + &quot;      ,[imageURL]\n&quot;
+                + &quot;      ,[email]\n&quot;
+                + &quot;      ,[recognizeDate]\n&quot;
+                + &quot;  FROM [dbo].[Lecturer]\n&quot;
+                + &quot;WHERE lecturerId = ?;&quot;;
+<span class="fc" id="L287">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="fc" id="L288">        ps.setString(1, id);</span>
+<span class="fc" id="L289">        Lecturer l = new Lecturer();</span>
+<span class="fc" id="L290">        ResultSet rs = ps.executeQuery();</span>
+<span class="pc bpc" id="L291" title="1 of 2 branches missed.">                if (rs.next()) {</span>
+<span class="fc" id="L292">            l.setId(id);</span>
+<span class="fc" id="L293">            Department d = this.getDepartment(rs.getString(&quot;departmentId&quot;));</span>
+<span class="fc" id="L294">            l.setDepartment(d);</span>
+<span class="fc" id="L295">            l.setSurname(rs.getString(&quot;surname&quot;));</span>
+<span class="fc" id="L296">            l.setMiddleName(rs.getString(&quot;middleName&quot;));</span>
+<span class="fc" id="L297">            l.setGivenName(rs.getString(&quot;givenName&quot;));</span>
+<span class="fc" id="L298">            l.setDateOfBirth(df.parse(rs.getString(&quot;dateOfBirth&quot;)));</span>
+<span class="fc" id="L299">            l.setGender(rs.getBoolean(&quot;gender&quot;));</span>
+<span class="fc" id="L300">            l.setAddress(rs.getString(&quot;address&quot;));</span>
+<span class="fc" id="L301">            l.setImageURL(rs.getString(&quot;imageURL&quot;));</span>
+<span class="fc" id="L302">            l.setEmail(rs.getString(&quot;email&quot;));</span>
+<span class="fc" id="L303">            l.setRecognizeDate(df.parse(rs.getString(&quot;recognizeDate&quot;)));</span>
+        }
+<span class="fc" id="L305">        return l;</span>
+    }
+    
+    public Student getStudent(String id) throws SQLException, ParseException {
+<span class="fc" id="L309">        String sql = &quot;SELECT [studentId]\n&quot;</span>
+                + &quot;      ,[majorId]\n&quot;
+                + &quot;      ,[surname]\n&quot;
+                + &quot;      ,[middleName]\n&quot;
+                + &quot;      ,[givenName]\n&quot;
+                + &quot;      ,[dateOfBirth]\n&quot;
+                + &quot;      ,[gender]\n&quot;
+                + &quot;      ,[address]\n&quot;
+                + &quot;      ,[imageURL]\n&quot;
+                + &quot;      ,[email]\n&quot;
+                + &quot;      ,[recognizeDate]\n&quot;
+                + &quot;  FROM [dbo].[Student]&quot;
+                + &quot;WHERE studentId = ?;&quot;;
+<span class="fc" id="L322">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="fc" id="L323">        ps.setString(1, id);</span>
+<span class="fc" id="L324">        Student s = new Student();</span>
+<span class="fc" id="L325">        ResultSet rs = ps.executeQuery();</span>
+<span class="pc bpc" id="L326" title="1 of 2 branches missed.">        if (rs.next()) {</span>
+<span class="fc" id="L327">            s.setId(id);</span>
+<span class="fc" id="L328">            Major m = this.getMajor(rs.getString(&quot;majorId&quot;));</span>
+<span class="fc" id="L329">            s.setMajor(m);</span>
+<span class="fc" id="L330">            s.setSurname(rs.getString(&quot;surname&quot;));</span>
+<span class="fc" id="L331">            s.setMiddleName(rs.getString(&quot;middleName&quot;));</span>
+<span class="fc" id="L332">            s.setGivenName(rs.getString(&quot;givenName&quot;));</span>
+<span class="fc" id="L333">            s.setDateOfBirth(df.parse(rs.getString(&quot;dateOfBirth&quot;)));</span>
+<span class="fc" id="L334">            s.setGender(rs.getBoolean(&quot;gender&quot;));</span>
+<span class="fc" id="L335">            s.setAddress(rs.getString(&quot;address&quot;));</span>
+<span class="fc" id="L336">            s.setImageURL(rs.getString(&quot;imageURL&quot;));</span>
+<span class="fc" id="L337">            s.setEmail(rs.getString(&quot;email&quot;));</span>
+<span class="fc" id="L338">            s.setRecognizeDate(df.parse(rs.getString(&quot;recognizeDate&quot;)));</span>
+        }
+<span class="fc" id="L340">        return s;</span>
+    }
+    public ArrayList&lt;Student&gt; getStudents(String pattern) throws SQLException, ParseException {
+<span class="nc" id="L343">        String sql = &quot;SELECT DISTINCT studentId, string\n&quot;</span>
+                + &quot;FROM (SELECT Student.StudentId, Student.studentId + ' ' + Student.surname + ' ' + Student.middleName + ' ' + Student.givenName + ' ' + CourseEnroll.groupId AS string\n&quot;
+                + &quot;FROM Student\n&quot;
+                + &quot;JOIN CourseEnroll\n&quot;
+                + &quot;ON Student.studentId = CourseEnroll.studentId) AS #temp\n&quot;
+                + &quot;WHERE string LIKE '%' + ? + '%'&quot;;
+<span class="nc" id="L349">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="nc" id="L350">        ps.setString(1, pattern);</span>
+<span class="nc" id="L351">        ArrayList&lt;Student&gt; studentList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L352">        ResultSet rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L353" title="All 2 branches missed.">        while (rs.next()) {</span>
+<span class="nc" id="L354">            Student student = this.getStudent(rs.getString(&quot;studentId&quot;));</span>
+<span class="nc" id="L355">            studentList.add(student);</span>
+<span class="nc" id="L356">        }</span>
+<span class="nc" id="L357">        return studentList;</span>
+    }
+    
+    public entity.Session getSession(Course course, int no) throws SQLException {
+<span class="fc" id="L361">        String sql = &quot;SELECT [courseId]\n&quot;</span>
+                + &quot;      ,[sessionNo]\n&quot;
+                + &quot;      ,[description]\n&quot;
+                + &quot;  FROM [dbo].[Session]\n&quot;
+                + &quot;WHERE courseId = ? AND sessionNo = ?;&quot;;
+<span class="fc" id="L366">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="fc" id="L367">        ps.setString(1, course.getId());</span>
+<span class="fc" id="L368">        ps.setInt(2, no);</span>
+<span class="fc" id="L369">        entity.Session s = new entity.Session();</span>
+<span class="fc" id="L370">        ResultSet rs = ps.executeQuery();</span>
+<span class="pc bpc" id="L371" title="1 of 2 branches missed.">        if (rs.next()) {</span>
+<span class="fc" id="L372">            s.setCourse(course);</span>
+<span class="fc" id="L373">            s.setNo(no);</span>
+<span class="fc" id="L374">            s.setDescription(rs.getString(&quot;description&quot;));</span>
+        }
+<span class="fc" id="L376">        return s;</span>
+    }
+<span class="fc" id="L378">    private final SimpleDateFormat dateFormat = new SimpleDateFormat(&quot;yyyy-MM-dd&quot;);</span>
+    public ArrayList&lt;transact.Session&gt; getSessions(String groupId, String courseId) throws SQLException, ParseException {
+<span class="nc" id="L380">        String sql = &quot;SELECT [groupId]\n&quot;</span>
+                + &quot;      ,[courseId]\n&quot;
+                + &quot;      ,[sessionNo]\n&quot;
+                + &quot;  FROM [dbo].[Sessions]\n&quot;
+                + &quot;WHERE groupId = ? AND courseId = ?;&quot;;
+<span class="nc" id="L385">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="nc" id="L386">        ps.setString(1, groupId);</span>
+<span class="nc" id="L387">        ps.setString(2, courseId);</span>
+<span class="nc" id="L388">        ArrayList&lt;transact.Session&gt; ss = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L389">        ResultSet rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L390" title="All 2 branches missed.">        while (rs.next()) {</span>
+<span class="nc" id="L391">            transact.Session ts = this.getSession(groupId, courseId, rs.getInt(&quot;sessionNo&quot;));</span>
+<span class="nc" id="L392">            ss.add(ts);</span>
+<span class="nc" id="L393">        }</span>
+<span class="nc" id="L394">        return ss;</span>
+    }
+    
+    public transact.Session getSession(String groupId, String courseId, int sessionNo) throws SQLException, ParseException {
+<span class="fc" id="L398">        String sql = &quot;SELECT [Sessions].[groupId]\n&quot;</span>
+                + &quot;      ,[Sessions].[courseId]\n&quot;
+                + &quot;      ,[sessionNo]\n&quot;
+                + &quot;      ,[Sessions].[lecturerId]\n&quot;
+                + &quot;      ,[takeStatus]\n&quot;
+                + &quot;      ,[roomId]\n&quot;
+                + &quot;      ,[slot]\n&quot;
+                + &quot;      ,[startDate]\n&quot;
+                + &quot;      ,[eduNextURL]\n&quot;
+                + &quot;      ,[meetURL]\n&quot;
+                + &quot;  FROM [dbo].[Sessions]\n&quot;
+                + &quot;  JOIN [Class]\n&quot;
+                + &quot;  ON [Sessions].[courseId] = [Class].[courseId] AND [Sessions].[groupId] = [Class].[groupId]\n&quot;
+                + &quot;WHERE [Sessions].groupId =  ? AND [Sessions].courseId = ? AND sessionNo = ?;&quot;;
+<span class="fc" id="L412">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="fc" id="L413">        ps.setString(1, groupId);</span>
+<span class="fc" id="L414">        ps.setString(2, courseId);</span>
+<span class="fc" id="L415">        ps.setInt(3, sessionNo);</span>
+<span class="fc" id="L416">        transact.Session s = new transact.Session();</span>
+<span class="fc" id="L417">        ResultSet rs = ps.executeQuery();</span>
+<span class="fc bfc" id="L418" title="All 2 branches covered.">        if (rs.next()) {</span>
+<span class="fc" id="L419">            s.setGroupId(rs.getString((&quot;groupId&quot;)));</span>
+<span class="fc" id="L420">            Course c = this.getCourse(rs.getString(&quot;courseId&quot;));</span>
+<span class="fc" id="L421">            entity.Session es = this.getSession(c, rs.getInt(&quot;sessionNo&quot;));</span>
+<span class="fc" id="L422">            s.setSession(es);</span>
+<span class="fc" id="L423">            Lecturer l = this.getLecturer(rs.getString(&quot;lecturerId&quot;));</span>
+<span class="fc" id="L424">            s.setLecturer(l);</span>
+<span class="pc bpc" id="L425" title="1 of 2 branches missed.">            if (rs.getString(&quot;takeStatus&quot;) != null) {</span>
+<span class="fc" id="L426">                s.setTakeStatus(rs.getBoolean(&quot;takeStatus&quot;));</span>
+            }
+<span class="fc" id="L428">            TimeSlot t = this.getTimeSlot(rs.getInt(&quot;slot&quot;));</span>
+<span class="fc" id="L429">            s.setSlot(t);</span>
+<span class="fc" id="L430">            Room r = this.getRoom(rs.getString(&quot;roomId&quot;));</span>
+<span class="fc" id="L431">            s.setRoom(r);</span>
+<span class="fc" id="L432">            s.setStartDate(dateFormat.parse(rs.getString(&quot;startDate&quot;)));</span>
+<span class="fc" id="L433">            s.setEduNextURL(rs.getString(&quot;eduNextURL&quot;));</span>
+<span class="fc" id="L434">            s.setMeetURL(rs.getString(&quot;meetURL&quot;));</span>
+        }
+<span class="fc" id="L436">        return s;</span>
+    }
+    public transact.Session getSession(Lecturer lecturer, java.util.Date startDate, TimeSlot slot) throws SQLException, ParseException {
+<span class="fc" id="L439">        String sql = &quot;SELECT [groupId]\n&quot;</span>
+                + &quot;      ,[courseId]\n&quot;
+                + &quot;      ,[sessionNo]\n&quot;
+                + &quot;      ,[lecturerId]\n&quot;
+                + &quot;  FROM [dbo].[Sessions]\n&quot;
+                + &quot;WHERE lecturerId = ? AND slot = ? AND startDate = ?;&quot;;
+<span class="fc" id="L445">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="fc" id="L446">        ps.setString(1, lecturer.getId());</span>
+<span class="fc" id="L447">        ps.setInt(2, slot.getSlot());</span>
+<span class="fc" id="L448">        ps.setString(3, dateFormat.format(startDate));</span>
+<span class="fc" id="L449">        transact.Session s = new transact.Session();</span>
+<span class="fc" id="L450">        ResultSet rs = ps.executeQuery();</span>
+<span class="fc bfc" id="L451" title="All 2 branches covered.">        if (rs.next()) {</span>
+<span class="fc" id="L452">            s.setLecturer(lecturer);</span>
+<span class="fc" id="L453">            s = this.getSession(rs.getString(&quot;groupId&quot;), rs.getString(&quot;courseId&quot;), rs.getInt(&quot;sessionNo&quot;));</span>
+        }
+<span class="fc" id="L455">        return s;</span>
+    }
+    
+    public ArrayList&lt;transact.Session&gt; getSession(Lecturer lecturer, java.util.Date startDate) throws SQLException, ParseException {
+<span class="nc" id="L459">        String sql = &quot;SELECT [groupId]\n&quot;</span>
+                + &quot;      ,[courseId]\n&quot;
+                + &quot;      ,[sessionNo]\n&quot;
+                + &quot;      ,[lecturerId]\n&quot;
+                + &quot;  FROM [dbo].[Sessions]\n&quot;
+                + &quot;WHERE lecturerId = ? AND startDate = ?\n&quot;
+                + &quot;ORDER BY slot ASC;&quot;;
+<span class="nc" id="L466">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="nc" id="L467">        ps.setString(1, lecturer.getId());</span>
+<span class="nc" id="L468">        ps.setString(2, dateFormat.format(startDate));</span>
+<span class="nc" id="L469">        ArrayList&lt;transact.Session&gt; sessionList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L470">        ResultSet rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L471" title="All 2 branches missed.">        if (rs.next()) {</span>
+<span class="nc" id="L472">            transact.Session s = new transact.Session();</span>
+<span class="nc" id="L473">            s.setLecturer(lecturer);</span>
+<span class="nc" id="L474">            s = this.getSession(rs.getString(&quot;groupId&quot;), rs.getString(&quot;courseId&quot;), rs.getInt(&quot;sessionNo&quot;));</span>
+<span class="nc" id="L475">            sessionList.add(s);</span>
+        }
+<span class="nc" id="L477">        return sessionList;</span>
+    }
+    
+    public Attend getAttend(Student student, java.util.Date startDate, TimeSlot slot) throws SQLException, ParseException {
+<span class="fc" id="L481">        String sql = &quot;SELECT Attends.[enrollId]\n&quot;</span>
+                + &quot;		, CourseEnroll.courseId\n&quot;
+                + &quot;      ,Attends.[groupId]\n&quot;
+                + &quot;      ,Attends.[sessionNo]\n&quot;
+                + &quot;      ,[attendStatus]\n&quot;
+                + &quot;      ,[comment]\n&quot;
+                + &quot;      ,[modifiedTime]\n&quot;
+                + &quot;      ,[modifiedBy]\n&quot;
+                + &quot;  FROM [dbo].[Attends]\n&quot;
+                + &quot;  JOIN CourseEnroll\n&quot;
+                + &quot;  ON Attends.enrollId = CourseEnroll.enrollId\n&quot;
+                + &quot;  JOIN [Sessions]\n&quot;
+                + &quot;  ON CourseEnroll.courseId = [Sessions].courseId AND Attends.groupId = [Sessions].groupId AND Attends.sessionNo = [Sessions].sessionNo\n&quot;
+                + &quot;WHERE studentId = ? AND slot = ? AND startDate = ?;&quot;;
+<span class="fc" id="L495">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="fc" id="L496">        ps.setString(1, student.getId());</span>
+<span class="fc" id="L497">        ps.setInt(2, slot.getSlot());</span>
+<span class="fc" id="L498">        ps.setString(3, dateFormat.format(startDate));</span>
+<span class="fc" id="L499">        Attend a = new Attend();</span>
+<span class="fc" id="L500">        ResultSet rs = ps.executeQuery();</span>
+<span class="fc bfc" id="L501" title="All 2 branches covered.">        if (rs.next()) {</span>
+<span class="fc" id="L502">            a.setEnrollId(rs.getInt(&quot;enrollId&quot;));</span>
+<span class="fc" id="L503">            a.setStudent(student);</span>
+<span class="fc" id="L504">            transact.Session s = this.getSession(rs.getString(&quot;groupId&quot;),</span>
+<span class="fc" id="L505">                    rs.getString(&quot;courseId&quot;), rs.getInt(&quot;sessionNo&quot;));</span>
+<span class="fc" id="L506">            a.setSession(s);</span>
+<span class="pc bpc" id="L507" title="1 of 2 branches missed.">            if (rs.getString(&quot;attendStatus&quot;) != null) {</span>
+<span class="nc" id="L508">                a.setAttendStatus(rs.getBoolean(&quot;attendStatus&quot;));</span>
+            }
+<span class="fc" id="L510">            a.setComment(rs.getString(&quot;comment&quot;));</span>
+<span class="pc bpc" id="L511" title="1 of 2 branches missed.">            if (rs.getString(&quot;modifiedTime&quot;) != null) {</span>
+<span class="nc" id="L512">                a.setModifiedTime(new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;)</span>
+<span class="nc" id="L513">                    .parse(rs.getString(&quot;modifiedTime&quot;)));</span>
+            }
+<span class="fc" id="L515">            Lecturer taker = new Lecturer();</span>
+<span class="fc" id="L516">            taker.setId(rs.getString(&quot;modifiedBy&quot;));</span>
+<span class="fc" id="L517">            a.setModifier(taker);</span>
+        }
+<span class="fc" id="L519">        return a;</span>
+    }
+    
+    public ArrayList&lt;Attend&gt; getAttends(Student student, java.util.Date startDate) throws SQLException, ParseException {
+<span class="nc" id="L523">        String sql = &quot;SELECT Attends.[enrollId]\n&quot;</span>
+                + &quot;		, CourseEnroll.courseId\n&quot;
+                + &quot;      ,Attends.[groupId]\n&quot;
+                + &quot;      ,Attends.[sessionNo]\n&quot;
+                + &quot;      ,[attendStatus]\n&quot;
+                + &quot;      ,[comment]\n&quot;
+                + &quot;      ,[modifiedTime]\n&quot;
+                + &quot;      ,[modifiedBy]\n&quot;
+                + &quot;  FROM [dbo].[Attends]\n&quot;
+                + &quot;  JOIN CourseEnroll\n&quot;
+                + &quot;  ON Attends.enrollId = CourseEnroll.enrollId\n&quot;
+                + &quot;  JOIN [Sessions]\n&quot;
+                + &quot;  ON CourseEnroll.courseId = [Sessions].courseId AND Attends.groupId = [Sessions].groupId AND Attends.sessionNo = [Sessions].sessionNo\n&quot;
+                + &quot;WHERE studentId = ? AND startDate = ?\n&quot;
+                + &quot;ORDER BY slot ASC;&quot;;
+<span class="nc" id="L538">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="nc" id="L539">        ps.setString(1, student.getId());</span>
+<span class="nc" id="L540">        ps.setString(2, dateFormat.format(startDate));</span>
+<span class="nc" id="L541">        ArrayList&lt;Attend&gt; attendList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L542">        ResultSet rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L543" title="All 2 branches missed.">        while (rs.next()) {</span>
+<span class="nc" id="L544">            Attend a = new Attend();</span>
+<span class="nc" id="L545">            a.setEnrollId(rs.getInt(&quot;enrollId&quot;));</span>
+<span class="nc" id="L546">            a.setStudent(student);</span>
+<span class="nc" id="L547">            transact.Session s = this.getSession(rs.getString(&quot;groupId&quot;),</span>
+<span class="nc" id="L548">                    rs.getString(&quot;courseId&quot;), rs.getInt(&quot;sessionNo&quot;));</span>
+<span class="nc" id="L549">            a.setSession(s);</span>
+<span class="nc bnc" id="L550" title="All 2 branches missed.">            if (rs.getString(&quot;attendStatus&quot;) != null) {</span>
+<span class="nc" id="L551">                a.setAttendStatus(rs.getBoolean(&quot;attendStatus&quot;));</span>
+            }
+<span class="nc" id="L553">            a.setComment(rs.getString(&quot;comment&quot;));</span>
+<span class="nc bnc" id="L554" title="All 2 branches missed.">            if (rs.getString(&quot;modifiedTime&quot;) != null) {</span>
+<span class="nc" id="L555">                a.setModifiedTime(new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;)</span>
+<span class="nc" id="L556">                    .parse(rs.getString(&quot;modifiedTime&quot;)));</span>
+            }
+<span class="nc" id="L558">            Lecturer taker = new Lecturer();</span>
+<span class="nc" id="L559">            taker.setId(rs.getString(&quot;modifiedBy&quot;));</span>
+<span class="nc" id="L560">            a.setModifier(taker);</span>
+<span class="nc" id="L561">            attendList.add(a);</span>
+<span class="nc" id="L562">        }</span>
+<span class="nc" id="L563">        return attendList;</span>
+    }
+    
+    public ArrayList&lt;Attend&gt; getAttends(int enrollId) throws SQLException, ParseException {
+<span class="nc" id="L567">        String sql = &quot;SELECT Attends.[enrollId]\n&quot;</span>
+                + &quot;      ,studentId&quot;
+                + &quot;      , CourseEnroll.courseId\n&quot;
+                + &quot;      ,Attends.[groupId]\n&quot;
+                + &quot;      ,Attends.[sessionNo]\n&quot;
+                + &quot;      ,[attendStatus]\n&quot;
+                + &quot;      ,[comment]\n&quot;
+                + &quot;      ,[modifiedTime]\n&quot;
+                + &quot;      ,[modifiedBy]\n&quot;
+                + &quot;  FROM [dbo].[Attends]\n&quot;
+                + &quot;  JOIN CourseEnroll\n&quot;
+                + &quot;  ON Attends.enrollId = CourseEnroll.enrollId\n&quot;
+                + &quot;  JOIN [Sessions]\n&quot;
+                + &quot;  ON CourseEnroll.courseId = [Sessions].courseId AND Attends.groupId = [Sessions].groupId AND Attends.sessionNo = [Sessions].sessionNo\n&quot;
+                + &quot;WHERE Attends.enrollId = ?;&quot;;
+<span class="nc" id="L582">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="nc" id="L583">        ps.setInt(1, enrollId);</span>
+<span class="nc" id="L584">        ArrayList&lt;Attend&gt; attendList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L585">        ResultSet rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L586" title="All 2 branches missed.">        while (rs.next()) {</span>
+<span class="nc" id="L587">            Attend a = new Attend();</span>
+<span class="nc" id="L588">            a.setEnrollId(rs.getInt(&quot;enrollId&quot;));</span>
+<span class="nc" id="L589">            a.setStudent(this.getStudent(&quot;studentId&quot;));</span>
+<span class="nc" id="L590">            transact.Session s = this.getSession(rs.getString(&quot;groupId&quot;),</span>
+<span class="nc" id="L591">                    rs.getString(&quot;courseId&quot;), rs.getInt(&quot;sessionNo&quot;));</span>
+<span class="nc" id="L592">            a.setSession(s);</span>
+<span class="nc bnc" id="L593" title="All 2 branches missed.">            if (rs.getString(&quot;attendStatus&quot;) != null) {</span>
+<span class="nc" id="L594">                a.setAttendStatus(rs.getBoolean(&quot;attendStatus&quot;));</span>
+            }
+<span class="nc" id="L596">            a.setComment(rs.getString(&quot;comment&quot;));</span>
+<span class="nc bnc" id="L597" title="All 2 branches missed.">            if (rs.getString(&quot;modifiedTime&quot;) != null) {</span>
+<span class="nc" id="L598">                a.setModifiedTime(new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;)</span>
+<span class="nc" id="L599">                    .parse(rs.getString(&quot;modifiedTime&quot;)));</span>
+            }
+<span class="nc" id="L601">            Lecturer taker = new Lecturer();</span>
+<span class="nc" id="L602">            taker.setId(rs.getString(&quot;modifiedBy&quot;));</span>
+<span class="nc" id="L603">            a.setModifier(taker);</span>
+<span class="nc" id="L604">            attendList.add(a);</span>
+<span class="nc" id="L605">        }</span>
+<span class="nc" id="L606">        attendList.sort(new Comparator&lt;Attend&gt;() {</span>
+            @Override
+            public int compare(Attend o1, Attend o2) {
+<span class="nc" id="L609">                return o1.getSession().getSession().getNo() - o2.getSession().getSession().getNo();</span>
+            }
+        });
+<span class="nc" id="L612">        return attendList;</span>
+    }
+        
+    public ArrayList&lt;Attend&gt; getAttends(transact.Session session) throws SQLException, ParseException {
+<span class="fc" id="L616">        String sql = &quot;SELECT Attends.[enrollId]&quot;</span>
+                + &quot;      ,studentId\n&quot;
+                + &quot;		, CourseEnroll.courseId\n&quot;
+                + &quot;      ,Attends.[groupId]\n&quot;
+                + &quot;      ,Attends.[sessionNo]\n&quot;
+                + &quot;      ,[attendStatus]\n&quot;
+                + &quot;      ,[comment]\n&quot;
+                + &quot;      ,[modifiedTime]\n&quot;
+                + &quot;      ,[modifiedBy]\n&quot;
+                + &quot;  FROM [dbo].[Attends]\n&quot;
+                + &quot;  JOIN CourseEnroll\n&quot;
+                + &quot;  ON Attends.enrollId = CourseEnroll.enrollId\n&quot;
+                + &quot;  JOIN [Sessions]\n&quot;
+                + &quot;  ON CourseEnroll.courseId = [Sessions].courseId AND Attends.groupId = [Sessions].groupId AND Attends.sessionNo = [Sessions].sessionNo\n&quot;
+                + &quot;WHERE CourseEnroll.courseId = ? AND Attends.[groupId]= ? AND Attends.[sessionNo] = ?\n&quot;
+                + &quot;ORDER BY studentId ASC;&quot;;
+<span class="fc" id="L632">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="fc" id="L633">        ps.setString(1, session.getSession().getCourse().getId());</span>
+<span class="fc" id="L634">        ps.setString(2, session.getGroupId());</span>
+<span class="fc" id="L635">        ps.setInt(3, session.getSession().getNo());</span>
+<span class="fc" id="L636">        ArrayList&lt;Attend&gt; as = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L637">        ResultSet rs = ps.executeQuery();</span>
+<span class="fc bfc" id="L638" title="All 2 branches covered.">        while (rs.next()) {</span>
+<span class="fc" id="L639">            Attend a = new Attend();</span>
+<span class="fc" id="L640">            a.setEnrollId(rs.getInt(&quot;enrollId&quot;));</span>
+<span class="fc" id="L641">            Student s = this.getStudent(rs.getString(&quot;studentId&quot;));</span>
+<span class="fc" id="L642">            a.setStudent(s);</span>
+<span class="fc" id="L643">            a.setSession(session);</span>
+            // Not yet;
+<span class="pc bpc" id="L645" title="1 of 2 branches missed.">            if (rs.getString(&quot;attendStatus&quot;) != null) {</span>
+<span class="fc" id="L646">                a.setAttendStatus(rs.getBoolean(&quot;attendStatus&quot;));</span>
+            }
+<span class="fc" id="L648">            a.setComment(rs.getString(&quot;comment&quot;));</span>
+<span class="pc bpc" id="L649" title="1 of 2 branches missed.">            if (rs.getString(&quot;modifiedTime&quot;) != null) {</span>
+<span class="fc" id="L650">                a.setModifiedTime(new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;)</span>
+<span class="fc" id="L651">                    .parse(rs.getString(&quot;modifiedTime&quot;)));</span>
+            }
+            
+<span class="fc" id="L654">            Lecturer taker = new Lecturer();</span>
+<span class="fc" id="L655">            taker.setId(rs.getString(&quot;modifiedBy&quot;));</span>
+<span class="fc" id="L656">            a.setModifier(taker);</span>
+<span class="fc" id="L657">            as.add(a);</span>
+<span class="fc" id="L658">        }</span>
+<span class="fc" id="L659">        return as;</span>
+    }
+    
+    public Grade getGrade(int enrollId, GradeItem gradeItem) throws SQLException, ParseException, ClassNotFoundException {
+<span class="fc" id="L663">        String sql = &quot;SELECT Exam.examCode, studentId, CourseEnroll.courseId, startTime, duration, [value], note\n&quot;</span>
+                + &quot;FROM Grades\n&quot;
+                + &quot;JOIN CourseEnroll\n&quot;
+                + &quot;ON Grades.enrollId = CourseEnroll.enrollId\n&quot;
+                + &quot;JOIN Exam\n&quot;
+                + &quot;ON Grades.examCode = Exam.examCode\n&quot;
+                + &quot;WHERE Grades.enrollId = ? AND itemId = ?;&quot;;
+<span class="fc" id="L670">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="fc" id="L671">        ps.setInt(1, enrollId);</span>
+<span class="fc" id="L672">        ps.setString(2, gradeItem.getId());</span>
+<span class="fc" id="L673">        Grade grade = new Grade();</span>
+<span class="fc" id="L674">        ResultSet rs = ps.executeQuery();</span>
+<span class="fc bfc" id="L675" title="All 2 branches covered.">        if (rs.next()) {</span>
+<span class="fc" id="L676">            Student student = new DBContext().getStudent(rs.getString(&quot;studentId&quot;));</span>
+<span class="fc" id="L677">            grade.setStudent(student);</span>
+<span class="fc" id="L678">            Exam exam = new Exam();</span>
+<span class="fc" id="L679">            exam.setExamCode(rs.getString(&quot;examCode&quot;));</span>
+<span class="fc" id="L680">            Course course = new DBContext().getCourse(&quot;courseId&quot;);</span>
+<span class="fc" id="L681">            exam.setCourse(course);</span>
+<span class="fc" id="L682">            exam.setGradeItem(gradeItem);</span>
+<span class="fc" id="L683">            exam.setStartTime(df.parse(rs.getString(&quot;startTime&quot;)));</span>
+<span class="fc" id="L684">            exam.setDuration((LocalTime.parse(rs.getString(&quot;duration&quot;)</span>
+<span class="fc" id="L685">                    .substring(0, 8), timeFormat)));</span>
+<span class="fc" id="L686">            grade.setExam(exam);</span>
+<span class="fc" id="L687">            grade.setValue(rs.getFloat(&quot;value&quot;));</span>
+<span class="fc" id="L688">            grade.setNote(rs.getString(&quot;note&quot;));</span>
+        }
+<span class="fc" id="L690">        return grade;</span>
+    }
+    
+    public GradeCategory getGradeCategory(String id) throws SQLException {
+<span class="nc" id="L694">        String sql = &quot;SELECT [categoryId]\n&quot;</span>
+                + &quot;      ,[name]\n&quot;
+                + &quot;      ,[categoryDescription]\n&quot;
+                + &quot;  FROM [dbo].[GradeCategory]\n&quot;
+                + &quot;WHERE categoryId = ?;&quot;;
+<span class="nc" id="L699">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="nc" id="L700">        ps.setString(1, id);</span>
+<span class="nc" id="L701">        GradeCategory gradeCategory = new GradeCategory();</span>
+<span class="nc" id="L702">        ResultSet rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L703" title="All 2 branches missed.">        if (rs.next()) {</span>
+<span class="nc" id="L704">            gradeCategory.setId(id);</span>
+<span class="nc" id="L705">            gradeCategory.setName(rs.getString(&quot;name&quot;));</span>
+<span class="nc" id="L706">            gradeCategory.setDescription(rs.getString(&quot;categoryDescription&quot;));</span>
+        }
+<span class="nc" id="L708">        return gradeCategory;</span>
+    }
+    
+    public GradeItem getGradeItem(String id) throws SQLException {
+<span class="nc" id="L712">        String sql = &quot;SELECT [itemId]\n&quot;</span>
+                + &quot;      ,[categoryId]\n&quot;
+                + &quot;      ,[itemName]\n&quot;
+                + &quot;  FROM [dbo].[GradeItem]\n&quot;
+                + &quot;WHERE itemId = ?;&quot;;
+<span class="nc" id="L717">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="nc" id="L718">        ps.setString(1, id);</span>
+<span class="nc" id="L719">        GradeItem gradeItem = new GradeItem();</span>
+<span class="nc" id="L720">        ResultSet rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L721" title="All 2 branches missed.">        if (rs.next()) {</span>
+<span class="nc" id="L722">            gradeItem.setId(id);</span>
+<span class="nc" id="L723">            GradeCategory category = this.getGradeCategory(rs.getString(&quot;categoryId&quot;));</span>
+<span class="nc" id="L724">            gradeItem.setCategory(category);</span>
+<span class="nc" id="L725">            gradeItem.setName(rs.getString(&quot;itemName&quot;));</span>
+        }
+<span class="nc" id="L727">        return gradeItem;</span>
+    }
+    
+    public CourseGrade getCourseGrade(Course course) throws SQLException {
+<span class="nc" id="L731">        String sql = &quot;SELECT [courseId]\n&quot;</span>
+                + &quot;      ,[itemId]\n&quot;
+                + &quot;      ,[weight]\n&quot;
+                + &quot;      ,[criteria]\n&quot;
+                + &quot;  FROM [dbo].[CourseGrades]\n&quot;
+                + &quot;WHERE courseId = ?;&quot;;
+<span class="nc" id="L737">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="nc" id="L738">        ps.setString(1, course.getId());</span>
+<span class="nc" id="L739">        CourseGrade courseGrade = new CourseGrade();</span>
+<span class="nc" id="L740">        courseGrade.setCourse(course);</span>
+<span class="nc" id="L741">        ArrayList&lt;GradeItem&gt; items = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L742">        ResultSet rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L743" title="All 2 branches missed.">        while (rs.next()) {</span>
+<span class="nc" id="L744">            GradeItem gradeItem = this.getGradeItem(rs.getString(&quot;itemId&quot;));</span>
+<span class="nc" id="L745">            gradeItem.setWeight(rs.getInt(&quot;weight&quot;));</span>
+<span class="nc" id="L746">            gradeItem.setCriteria(rs.getFloat(&quot;criteria&quot;));</span>
+<span class="nc" id="L747">            items.add(gradeItem);</span>
+<span class="nc" id="L748">        }</span>
+<span class="nc" id="L749">        courseGrade.setGradeItems(items);</span>
+<span class="nc" id="L750">        return courseGrade;</span>
+    }
+
+    public HashMap&lt;Integer, ArrayList&lt;CourseEnroll&gt;&gt; getCourseEnrolls(String studentId) throws SQLException, ParseException {
+<span class="nc" id="L754">        String sql = &quot;SELECT enrollId, semesterId\n&quot;</span>
+                + &quot;FROM CourseEnroll\n&quot;
+                + &quot;WHERE studentId = ?;&quot;;
+<span class="nc" id="L757">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="nc" id="L758">        ps.setString(1, studentId);</span>
+<span class="nc" id="L759">        HashMap&lt;Integer, ArrayList&lt;CourseEnroll&gt;&gt; semesterMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L760">        ResultSet rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L761" title="All 2 branches missed.">        while (rs.next()) {</span>
+<span class="nc" id="L762">            int semesterId = rs.getInt(&quot;semesterId&quot;);</span>
+<span class="nc" id="L763">            CourseEnroll courseEnroll = this.getCourseEnroll(rs.getInt(&quot;enrollId&quot;));</span>
+<span class="nc" id="L764">            ArrayList&lt;CourseEnroll&gt; courseEnrollList = semesterMap.get(semesterId);</span>
+<span class="nc bnc" id="L765" title="All 2 branches missed.">            if (courseEnrollList == null) {</span>
+<span class="nc" id="L766">                courseEnrollList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L767">                semesterMap.put(semesterId, courseEnrollList);</span>
+            }
+<span class="nc" id="L769">            courseEnrollList.add(courseEnroll);</span>
+<span class="nc" id="L770">        }</span>
+<span class="nc" id="L771">        return semesterMap;    </span>
+    }
+    
+    public CourseEnroll getCourseEnroll(Student student, Course course) throws SQLException, ParseException {
+<span class="fc" id="L775">        String sql = &quot;SELECT TOP(1) enrollId\n&quot;</span>
+                + &quot;  FROM [dbo].[CourseEnroll]\n&quot;
+                + &quot;WHERE studentId = ? AND courseId = ?\n&quot;
+                + &quot;ORDER BY enrollId DESC;&quot;;
+<span class="fc" id="L779">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="fc" id="L780">        ps.setString(1, student.getId());</span>
+<span class="fc" id="L781">        ps.setString(2, course.getId());</span>
+<span class="fc" id="L782">        CourseEnroll courseEnroll = new CourseEnroll();</span>
+<span class="fc" id="L783">        ResultSet rs = ps.executeQuery();</span>
+<span class="fc bfc" id="L784" title="All 2 branches covered.">        if (rs.next()) {  </span>
+<span class="fc" id="L785">            courseEnroll = this.getCourseEnroll(rs.getInt(&quot;enrollId&quot;));</span>
+        }
+<span class="fc" id="L787">        return courseEnroll;</span>
+    }
+    
+    public ArrayList&lt;CourseEnroll&gt; getCourseEnrolls(int semesterId) throws SQLException, ParseException {
+<span class="nc" id="L791">        String sql = &quot;SELECT enrollId\n&quot;</span>
+                + &quot;FROM CourseEnroll\n&quot;
+                + &quot;WHERE semesterId = ?;&quot;;
+<span class="nc" id="L794">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="nc" id="L795">        ps.setInt(1, semesterId);</span>
+<span class="nc" id="L796">        ArrayList&lt;CourseEnroll&gt; enrollList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L797">        ResultSet rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L798" title="All 2 branches missed.">        while (rs.next()) {</span>
+<span class="nc" id="L799">            CourseEnroll enroll = this.getCourseEnroll(rs.getInt(&quot;enrollId&quot;));</span>
+<span class="nc" id="L800">            enrollList.add(enroll);</span>
+<span class="nc" id="L801">        }</span>
+<span class="nc" id="L802">        return enrollList;</span>
+    }
+    
+    public CourseEnroll getCourseEnroll(int enrollId) throws SQLException, ParseException {
+<span class="fc" id="L806">        String sql = &quot;SELECT enrollId&quot;</span>
+                + &quot;      , studentId\n&quot;
+                + &quot;      ,[courseId]\n&quot;
+                + &quot;      ,[groupId]\n&quot;
+                + &quot;      ,[semesterId]\n&quot;
+                + &quot;      ,[average]\n&quot;
+                + &quot;      ,[state]\n&quot;
+                + &quot;  FROM [dbo].[CourseEnroll]\n&quot;
+                + &quot;WHERE enrollId = ?;&quot;;
+<span class="fc" id="L815">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="fc" id="L816">        ps.setInt(1, enrollId);</span>
+<span class="fc" id="L817">        CourseEnroll courseEnroll = new CourseEnroll();</span>
+<span class="fc" id="L818">        ResultSet rs = ps.executeQuery();</span>
+<span class="pc bpc" id="L819" title="1 of 2 branches missed.">        if (rs.next()) {  </span>
+<span class="fc" id="L820">            courseEnroll.setId(rs.getInt(&quot;enrollId&quot;));</span>
+<span class="fc" id="L821">            courseEnroll.setStudent(this.getStudent(rs.getString(&quot;studentId&quot;)));</span>
+<span class="fc" id="L822">            courseEnroll.setCourse(this.getCourse(rs.getString(&quot;courseId&quot;)));</span>
+<span class="fc" id="L823">            courseEnroll.setGroupId(rs.getString(&quot;groupId&quot;));</span>
+<span class="fc" id="L824">            Semester semester = this.getSemester(rs.getInt(&quot;semesterId&quot;));</span>
+<span class="pc bpc" id="L825" title="1 of 2 branches missed.">            if (rs.getString(&quot;average&quot;) != null) {</span>
+<span class="nc" id="L826">                courseEnroll.setAverage(rs.getFloat(&quot;average&quot;));</span>
+            }
+<span class="fc" id="L828">            courseEnroll.setState(rs.getString(&quot;state&quot;));</span>
+<span class="fc" id="L829">            courseEnroll.setSemester(semester);</span>
+        }
+<span class="fc" id="L831">        return courseEnroll;</span>
+    }
+    public ArrayList&lt;Request&gt; getRequests(String studentId) throws SQLException, ParseException {
+<span class="nc" id="L834">        String sql = &quot;SELECT [requestId]\n&quot;</span>
+                + &quot;  FROM [dbo].[Request]&quot;
+                + &quot;JOIN CourseEnroll\n&quot;
+                + &quot;ON CourseEnroll.enrollId = Request.enrollId\n&quot;
+                + &quot;WHERE studentId = ?;&quot;;
+<span class="nc" id="L839">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="nc" id="L840">        ps.setString(1, studentId);</span>
+<span class="nc" id="L841">        ArrayList&lt;Request&gt; requestList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L842">        ResultSet rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L843" title="All 2 branches missed.">        while (rs.next()) {</span>
+<span class="nc" id="L844">            Request request = this.getRequest(rs.getInt(&quot;requestId&quot;));</span>
+<span class="nc" id="L845">            requestList.add(request);</span>
+<span class="nc" id="L846">        }</span>
+<span class="nc" id="L847">        return requestList;</span>
+    }
+    
+    public Request getRequest(int id) throws SQLException, ParseException {
+<span class="nc" id="L851">        String sql = &quot;SELECT [requestId]\n&quot;</span>
+                + &quot;      ,[enrollId]\n&quot;
+                + &quot;      ,[classAfter]\n&quot;
+                + &quot;      ,[purpose]\n&quot;
+                + &quot;      ,[requestState]\n&quot;
+                + &quot;      ,[response]\n&quot;
+                + &quot;      ,[staffId]\n&quot;
+                + &quot;      ,[sendTime]\n&quot;
+                + &quot;  FROM [dbo].[Request]\n&quot;
+                + &quot;WHERE requestId = ?;&quot;;
+<span class="nc" id="L861">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="nc" id="L862">        ps.setInt(1, id);</span>
+<span class="nc" id="L863">        Request request = new Request();</span>
+<span class="nc" id="L864">        ResultSet rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L865" title="All 2 branches missed.">        if (rs.next()) {</span>
+<span class="nc" id="L866">            request.setId(id);</span>
+<span class="nc" id="L867">            request.setCourseEnroll(this.getCourseEnroll(rs.getInt(&quot;enrollId&quot;)));</span>
+<span class="nc" id="L868">            request.setToClass(rs.getString(&quot;classAfter&quot;));</span>
+<span class="nc" id="L869">            request.setPurpose(rs.getString(&quot;purpose&quot;));</span>
+<span class="nc bnc" id="L870" title="All 2 branches missed.">            if (rs.getString(&quot;requestState&quot;) != null) {</span>
+<span class="nc" id="L871">                request.setState(rs.getBoolean(&quot;requestState&quot;));</span>
+            }
+<span class="nc" id="L873">            request.setResponse(rs.getString(&quot;response&quot;));</span>
+<span class="nc" id="L874">            request.setSendTime(new SimpleDateFormat(&quot;yyyy-MM-dd hh:mm:ss.SSS&quot;).parse(rs.getString(&quot;sendTime&quot;)));</span>
+        }
+<span class="nc" id="L876">        return request;</span>
+    }
+    
+    public boolean insertCourseEnroll(String studentId, String courseId, String groupId, int semesterId) throws SQLException {
+<span class="fc" id="L880">        String sql = &quot;INSERT INTO [dbo].[CourseEnroll]\n&quot;</span>
+                + &quot;           ([studentId]\n&quot;
+                + &quot;           ,[courseId]\n&quot;
+                + &quot;           ,[groupId]\n&quot;
+                + &quot;           ,[semesterId])\n&quot;
+                + &quot;     VALUES\n&quot;
+                + &quot;           (?\n&quot;
+                + &quot;           ,?\n&quot;
+                + &quot;           ,?\n&quot;
+                + &quot;           ,?)&quot;;
+<span class="fc" id="L890">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="fc" id="L891">        ps.setString(1, studentId);</span>
+<span class="fc" id="L892">        ps.setString(2, courseId);</span>
+<span class="fc" id="L893">        ps.setString(3, groupId);</span>
+<span class="fc" id="L894">        ps.setInt(4, semesterId);</span>
+<span class="fc" id="L895">        int rowAffected = ps.executeUpdate();</span>
+<span class="pc bpc" id="L896" title="1 of 2 branches missed.">        return rowAffected &gt; 0;</span>
+    }
+
+    public boolean updateSession(transact.Session session) throws SQLException {
+<span class="fc" id="L900">        String sql = &quot;UPDATE [dbo].[Sessions]\n&quot;</span>
+                + &quot;   SET [takeStatus] = ?\n&quot;
+                + &quot; WHERE groupId = ? AND courseId = ? AND sessionNo = ?&quot;;
+<span class="fc" id="L903">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="fc" id="L904">        ps.setBoolean(1, true);</span>
+<span class="fc" id="L905">        ps.setString(2, session.getGroupId());</span>
+<span class="fc" id="L906">        ps.setString(3, session.getSession().getCourse().getId());</span>
+<span class="fc" id="L907">        ps.setInt(4, session.getSession().getNo());</span>
+<span class="fc" id="L908">        int affectedRow = ps.executeUpdate();</span>
+<span class="fc bfc" id="L909" title="All 2 branches covered.">        return affectedRow &gt; 0;</span>
+    }
+    
+    public boolean updateAttends(ArrayList&lt;Attend&gt; attendList) throws SQLException {
+<span class="fc" id="L913">        String updateTime = new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss.SSS&quot;).format(new Date());</span>
+<span class="fc" id="L914">        int rowsAffected = 0;</span>
+<span class="fc bfc" id="L915" title="All 2 branches covered.">        for (Attend a : attendList) {</span>
+<span class="fc" id="L916">            String sql = &quot;UPDATE [dbo].[Attends]\n&quot;</span>
+                    + &quot;   SET [attendStatus] = ?\n&quot;
+                    + &quot;      ,[comment] = ?\n&quot;
+                    + &quot;      ,[modifiedTime] = ?\n&quot;
+                    + &quot;      ,[modifiedBy] = ?\n&quot;
+                    + &quot; WHERE enrollId = ? AND sessionNo = ?&quot;;
+<span class="fc" id="L922">            PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="fc" id="L923">            ps.setBoolean(1, a.isPresent());</span>
+<span class="fc" id="L924">            ps.setString(2, a.getComment());</span>
+<span class="fc" id="L925">            ps.setString(3, updateTime);</span>
+<span class="fc" id="L926">            ps.setString(4, a.getModifier().getId());</span>
+<span class="fc" id="L927">            ps.setInt(5, a.getEnrollId());</span>
+<span class="fc" id="L928">            ps.setInt(6, a.getSession().getSession().getNo());</span>
+<span class="fc" id="L929">            rowsAffected += ps.executeUpdate();</span>
+<span class="fc" id="L930">        }</span>
+<span class="fc bfc" id="L931" title="All 2 branches covered.">        return rowsAffected &gt; 0;</span>
+    }
+    
+    public boolean insertRequest(int enrollId, String classAfter, String reason) throws SQLException {
+<span class="fc" id="L935">        String sql = &quot;INSERT INTO [dbo].[Request]\n&quot;</span>
+                + &quot;           ( enrollId\n&quot;
+                + &quot;           ,[classAfter]\n&quot;
+                + &quot;           ,[purpose])\n&quot;
+                + &quot;     VALUES\n&quot;
+                + &quot;           (?\n&quot;
+                + &quot;           ,?\n&quot;
+                + &quot;           ,?);&quot;;
+<span class="fc" id="L943">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="fc" id="L944">        ps.setInt(1, enrollId);</span>
+<span class="fc" id="L945">        ps.setString(2, classAfter);</span>
+<span class="fc" id="L946">        ps.setString(3, reason);</span>
+<span class="fc" id="L947">        int affectedRow = ps.executeUpdate();</span>
+<span class="pc bpc" id="L948" title="1 of 2 branches missed.">        return affectedRow &gt; 0;</span>
+
+    }
+
+    public boolean deleteCourseEnroll(String studentId, String courseId, int semesterId) throws SQLException {
+<span class="fc bfc" id="L953" title="All 4 branches covered.">        if (studentId == null || courseId == null) {</span>
+<span class="fc" id="L954">            throw new IllegalArgumentException(&quot;studentId and courseId cannot be null&quot;);</span>
+        }
+
+<span class="fc bfc" id="L957" title="All 2 branches covered.">        if (semesterId &lt;= 0) {</span>
+<span class="fc" id="L958">            throw new IllegalArgumentException(&quot;semesterId cannot be less than 1&quot;);</span>
+        }
+
+<span class="fc" id="L961">        String sql = &quot;DELETE FROM [dbo].[CourseEnroll]\n&quot; +</span>
+                &quot;where studentId = ? and courseId = ? and semesterId = ?;&quot;;
+<span class="fc" id="L963">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="fc" id="L964">        ps.setString(1, studentId);</span>
+<span class="fc" id="L965">        ps.setString(2, courseId);</span>
+<span class="fc" id="L966">        ps.setInt(3, semesterId);</span>
+<span class="fc" id="L967">        int affectedRow = ps.executeUpdate();</span>
+<span class="fc bfc" id="L968" title="All 2 branches covered.">        return affectedRow &gt; 0;</span>
+    }
+    
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

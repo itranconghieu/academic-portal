@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Caculation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Ant</a> &gt; <a href="index.source.html" class="el_package">db</a> &gt; <span class="el_source">Caculation.java</span></div><h1>Caculation.java</h1><pre class="source lang-java linenums">// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
+package db;
+
+
+import entity.Semester;
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.sql.*;
+import transact.Attend;
+import transact.CourseEnroll;
+
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+
+/**
+ *
+ * @author End User
+ */
+<span class="nc" id="L24">public class Caculation {</span>
+    public static void main(String[] args) throws ClassNotFoundException, SQLException, ParseException {
+<span class="nc" id="L26">        Date now = new Date();</span>
+<span class="nc" id="L27">        Semester currentSemester = new DBContext().getSemester(now);</span>
+<span class="nc" id="L28">        ArrayList&lt;CourseEnroll&gt; enrollList = new DBContext().getCourseEnrolls(currentSemester.getId());</span>
+<span class="nc bnc" id="L29" title="All 2 branches missed.">        for (CourseEnroll enroll : enrollList) {</span>
+<span class="nc" id="L30">            ArrayList&lt;Attend&gt; attendList = new DBContext().getAttends(enroll.getId());</span>
+<span class="nc" id="L31">            int absentSession = 0;</span>
+<span class="nc bnc" id="L32" title="All 2 branches missed.">            for (Attend attend : attendList) {</span>
+<span class="nc bnc" id="L33" title="All 4 branches missed.">                if (attend.isPresent() == null || !attend.isPresent()) {</span>
+<span class="nc" id="L34">                    absentSession ++;</span>
+                }
+<span class="nc" id="L36">            }</span>
+<span class="nc bnc" id="L37" title="All 2 branches missed.">            if (attendList.get(attendList.size() - 1).getSession().getStartDate().before(now)) {</span>
+<span class="nc bnc" id="L38" title="All 2 branches missed.">                boolean failAttend = absentSession &gt; attendList.size() * 0.2;</span>
+<span class="nc" id="L39">                boolean failCriteria = false;</span>
+<span class="nc" id="L40">                ArrayList&lt;Grade&gt; gradeList = new GradeDBContext().getGrades(enroll.getId());</span>
+<span class="nc" id="L41">                float average = 0;</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">                for (Grade grade : gradeList) {</span>
+<span class="nc bnc" id="L43" title="All 6 branches missed.">                    if ( grade.getCriteria() == null || (grade.getCriteria() != null &amp;&amp; grade.getValue() &gt;= grade.getCriteria())) {</span>
+<span class="nc" id="L44">                        average += (float) (grade.getValue() * (grade.getWeight() / 100.0));</span>
+                    } else {
+<span class="nc" id="L46">                        failCriteria = true;</span>
+                    }
+<span class="nc" id="L48">                }</span>
+<span class="nc bnc" id="L49" title="All 4 branches missed.">                String status = !failAttend ? (failCriteria ? &quot;Not passed&quot; : &quot;Passed&quot;) : &quot;Not passed&quot;;</span>
+<span class="nc" id="L50">                new GradeDBContext().updateCourseEnroll(enroll.getId(), average, status);</span>
+            }
+<span class="nc" id="L52">        }</span>
+<span class="nc" id="L53">    }</span>
+
+    public static class GradeDBContext extends Open {
+<span class="nc" id="L56">        GradeDBContext() throws ClassNotFoundException, SQLException {</span>
+            
+<span class="nc" id="L58">        }</span>
+        
+        ArrayList&lt;Grade&gt; getGrades(int enrollId) throws SQLException  {
+<span class="nc" id="L61">            String sql = &quot;SELECT [weight], [value], criteria\n&quot;</span>
+                    + &quot;FROM CourseGrades\n&quot;
+                    + &quot;LEFT JOIN CourseEnroll\n&quot;
+                    + &quot;ON CourseGrades.courseId = CourseEnroll.courseId\n&quot;
+                    + &quot;LEFT JOIN Exam\n&quot;
+                    + &quot;ON CourseGrades.courseId = Exam.courseId AND CourseGrades.itemId = Exam.itemId\n&quot;
+                    + &quot;LEFT JOIN Grades\n&quot;
+                    + &quot;ON CourseEnroll.enrollId = Grades.enrollId AND Exam.examCode = Grades.examCode\n&quot;
+                    + &quot;WHERE CourseEnroll.enrollId = ?&quot;;
+<span class="nc" id="L70">            PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="nc" id="L71">            ps.setInt(1, enrollId);</span>
+<span class="nc" id="L72">            ArrayList&lt;Grade&gt; gradeList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L73">            ResultSet rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">            while (rs.next()) {</span>
+<span class="nc" id="L75">                Grade g = new Grade();</span>
+<span class="nc" id="L76">                g.setWeight(rs.getInt(&quot;weight&quot;));</span>
+<span class="nc" id="L77">                g.setValue(rs.getFloat(&quot;value&quot;));</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">                if (rs.getString(&quot;criteria&quot;) != null) {</span>
+<span class="nc" id="L79">                   g.setCriteria(rs.getFloat(&quot;criteria&quot;)); </span>
+                }
+<span class="nc" id="L81">                gradeList.add(g);</span>
+<span class="nc" id="L82">            }</span>
+<span class="nc" id="L83">            return gradeList;</span>
+        }
+        
+        void updateCourseEnroll(int enrollId, float average, String status) throws SQLException {
+<span class="nc" id="L87">            String sql = &quot;UPDATE CourseEnroll\n&quot;</span>
+                    + &quot;SET average = ?, state = ?\n&quot;
+                    + &quot;WHERE enrollId = ?;&quot;;
+<span class="nc" id="L90">            PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="nc" id="L91">            ps.setFloat(1, average);</span>
+<span class="nc" id="L92">            ps.setString(2, status);</span>
+<span class="nc" id="L93">            ps.setInt(3, enrollId);</span>
+<span class="nc" id="L94">            ps.executeUpdate();</span>
+<span class="nc" id="L95">        }</span>
+        
+    }
+    
+    static class Grade {
+        int weight;
+        float value;
+        Float criteria;
+        
+<span class="nc" id="L104">        public Grade() {</span>
+            
+<span class="nc" id="L106">        }</span>
+        public int getWeight() {
+<span class="nc" id="L108">            return weight;</span>
+        }
+
+        public void setWeight(int weight) {
+<span class="nc" id="L112">            this.weight = weight;</span>
+<span class="nc" id="L113">        }</span>
+
+        public float getValue() {
+<span class="nc" id="L116">            return value;</span>
+        }
+
+        public void setValue(float value) {
+<span class="nc" id="L120">            this.value = value;</span>
+<span class="nc" id="L121">        }</span>
+
+        public Float getCriteria() {
+<span class="nc" id="L124">            return criteria;</span>
+        }
+
+        public void setCriteria(Float criteria) {
+<span class="nc" id="L128">            this.criteria = criteria;</span>
+<span class="nc" id="L129">        }   </span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

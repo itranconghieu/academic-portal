@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ViewYear.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Ant</a> &gt; <a href="index.source.html" class="el_package">handler.timetable</a> &gt; <span class="el_source">ViewYear.java</span></div><h1>ViewYear.java</h1><pre class="source lang-java linenums">// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package handler.timetable;
+
+import entity.Account;
+import entity.Lecturer;
+import entity.Student;
+import handler.authen.BasedAuthentication;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import db.DBContext;
+import transact.Attend;
+
+/**
+ *
+ * @author End User
+ */
+<span class="nc" id="L33">public class ViewYear extends BasedAuthentication{</span>
+<span class="nc" id="L34">    private final SimpleDateFormat df = new SimpleDateFormat(&quot;yyyy-MM-dd&quot;);</span>
+    protected void processRequest(Account account, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, ClassNotFoundException, SQLException, ParseException {
+<span class="nc" id="L36">        Date now = new Date();</span>
+<span class="nc" id="L37">        String iy = req.getParameter(&quot;selected-year&quot;);</span>
+<span class="nc" id="L38">        int startYear = account.getRecognizeDate().getYear();</span>
+<span class="nc" id="L39">        int endYear = now.getYear();</span>
+<span class="nc" id="L40">        ArrayList&lt;Integer&gt; years = this.getYearList(startYear, endYear);</span>
+<span class="nc" id="L41">        req.setAttribute(&quot;years&quot;, years);</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        int selectedYear = iy == null ? now.getYear()</span>
+<span class="nc" id="L43">                : years.get(Integer.parseInt(iy));</span>
+<span class="nc" id="L44">        req.setAttribute(&quot;selectedYear&quot;, selectedYear);</span>
+<span class="nc" id="L45">        Calendar calendar = Calendar.getInstance();</span>
+<span class="nc" id="L46">        calendar.set(Calendar.YEAR, selectedYear + 1900);</span>
+<span class="nc" id="L47">        req.setAttribute(&quot;calendar&quot;, calendar);</span>
+<span class="nc" id="L48">        HashMap&lt;String, ArrayList&lt;Attend&gt;&gt; sessionMap = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        for (int month = 0; month &lt; 12; month++) {</span>
+<span class="nc" id="L50">            calendar.set(Calendar.MONTH, month);</span>
+<span class="nc" id="L51">            calendar.set(Calendar.DAY_OF_MONTH, 1);</span>
+<span class="nc" id="L52">            int numDays = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">            for (int i = 1; i &lt;= numDays; i++) {</span>
+<span class="nc" id="L54">                  calendar.set(Calendar.DAY_OF_MONTH, i);</span>
+<span class="nc" id="L55">                Date date = calendar.getTime();</span>
+<span class="nc" id="L56">                String key = df.format(date);</span>
+<span class="nc" id="L57">                ArrayList&lt;Attend&gt; attendList = new ArrayList&lt;&gt;();</span>
+                try {
+<span class="nc" id="L59">                    attendList = new DBContext().getAttends((Student) account, date);</span>
+<span class="nc" id="L60">                } catch (Exception e) {</span>
+<span class="nc" id="L61">                    ArrayList&lt;transact.Session&gt; sessionList = new DBContext().getSession((Lecturer) account, date);</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">                    for (transact.Session s : sessionList) {</span>
+<span class="nc" id="L63">                        Attend t = new Attend();</span>
+<span class="nc" id="L64">                        t.setSession(s);</span>
+<span class="nc" id="L65">                        attendList.add(t);</span>
+<span class="nc" id="L66">                    }</span>
+<span class="nc" id="L67">                }</span>
+<span class="nc" id="L68">                sessionMap.put(key, attendList);</span>
+            }
+        }
+<span class="nc" id="L71">        req.setAttribute(&quot;sessionMap&quot;, sessionMap);</span>
+<span class="nc" id="L72">        req.getRequestDispatcher(&quot;view-year.jsp&quot;).forward(req, resp);</span>
+<span class="nc" id="L73">    }</span>
+    
+    @Override
+    protected void doGet(Account account, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        try {
+<span class="nc" id="L78">            this.processRequest(account, req, resp);</span>
+<span class="nc" id="L79">        } catch (ClassNotFoundException ex) {</span>
+<span class="nc" id="L80">            Logger.getLogger(ViewYear.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L81">        } catch (SQLException ex) {</span>
+<span class="nc" id="L82">            Logger.getLogger(ViewYear.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L83">        } catch (ParseException ex) {</span>
+<span class="nc" id="L84">            Logger.getLogger(ViewYear.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L85">        }</span>
+<span class="nc" id="L86">    }</span>
+
+    @Override
+    protected void doPost(Account account, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        try {
+<span class="nc" id="L91">            this.processRequest(account, req, resp);</span>
+<span class="nc" id="L92">        } catch (ClassNotFoundException ex) {</span>
+<span class="nc" id="L93">            Logger.getLogger(ViewYear.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L94">        } catch (SQLException ex) {</span>
+<span class="nc" id="L95">            Logger.getLogger(ViewYear.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L96">        } catch (ParseException ex) {</span>
+<span class="nc" id="L97">            Logger.getLogger(ViewYear.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L98">        }</span>
+<span class="nc" id="L99">    }</span>
+    
+    public ArrayList&lt;Integer&gt; getYearList(int startYear, int endYear) {
+<span class="nc" id="L102">        int localVar = startYear;</span>
+<span class="nc" id="L103">        ArrayList&lt;Integer&gt; yearList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L104">        int length = (endYear - localVar) + 1;</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        while (yearList.size() &lt; length) {</span>
+<span class="nc" id="L106">            yearList.add(localVar ++);</span>
+        }
+<span class="nc" id="L108">        return  yearList;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

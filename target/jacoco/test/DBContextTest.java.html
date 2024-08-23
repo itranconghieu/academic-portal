@@ -1,0 +1,1207 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DBContextTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Ant</a> &gt; <a href="index.source.html" class="el_package">test</a> &gt; <span class="el_source">DBContextTest.java</span></div><h1>DBContextTest.java</h1><pre class="source lang-java linenums">package test;
+
+import entity.Session;
+import entity.TimeSlot;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+
+public class DBContextTest {
+<span class="fc" id="L15">    private final db.DBContext dbContext = new db.DBContext();</span>
+
+<span class="fc" id="L17">    public DBContextTest() throws SQLException, ClassNotFoundException {</span>
+<span class="fc" id="L18">    }</span>
+
+    private String generateString(int size) {
+<span class="fc" id="L21">        StringBuilder str = new StringBuilder();</span>
+<span class="fc bfc" id="L22" title="All 2 branches covered.">        for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L23">            str.append('a');</span>
+        }
+<span class="fc" id="L25">        return str.toString();</span>
+    }
+
+    @Test
+    public void insertRequest_UTCID01() throws SQLException {
+<span class="fc" id="L30">        Assert.assertEquals(true, dbContext.insertRequest(1, &quot;SE1840&quot;, &quot;im tried&quot;));</span>
+<span class="fc" id="L31">    }</span>
+
+    @Test
+    public void insertRequest_UTCID02() throws SQLException {
+<span class="nc" id="L35">         Assert.assertEquals(false,  dbContext.insertRequest(1, &quot;SE1840&quot;, null));</span>
+<span class="nc" id="L36">    }</span>
+
+    @Test
+    public void insertRequest_UTCID03() throws SQLException {
+<span class="nc" id="L40">        Assert.assertEquals(false,  dbContext.insertRequest(1, &quot;SE1840&quot;, this.generateString(257)));</span>
+<span class="nc" id="L41">    }</span>
+
+    @Test
+    public void insertRequest_UTCID04() throws SQLException {
+<span class="nc" id="L45">        Assert.assertEquals(false, dbContext.insertRequest(1, &quot;SE1817&quot;, &quot;im tried&quot;));</span>
+<span class="nc" id="L46">    }</span>
+
+    @Test
+    public void insertRequest_UTCID05() throws SQLException {
+<span class="nc" id="L50">        Assert.assertEquals(false, dbContext.insertRequest(1, &quot;SE1800&quot;, &quot;im tried&quot;));</span>
+<span class="nc" id="L51">    }</span>
+
+    @Test
+    public void insertRequest_UTCID06() throws SQLException {
+<span class="nc" id="L55">        Assert.assertEquals(false, dbContext.insertRequest(1, &quot;SE170482&quot;, &quot;im tried&quot;));</span>
+<span class="nc" id="L56">    }</span>
+
+    @Test
+    public void insertRequest_UTCID07() throws SQLException {
+<span class="nc" id="L60">        Assert.assertEquals(false, dbContext.insertRequest(1, null, &quot;im tried&quot;));</span>
+<span class="nc" id="L61">    }</span>
+
+    @Test
+    public void insertRequest_UTCID08() throws SQLException {
+<span class="nc" id="L65">        Assert.assertEquals(false, dbContext.insertRequest(7, &quot;SE1840&quot;, &quot;im  tried&quot;));</span>
+<span class="nc" id="L66">    }</span>
+
+    @Test
+    public void insertRequest_UTCID09() throws SQLException {
+<span class="nc" id="L70">        Assert.assertEquals(false, dbContext.insertRequest(0, &quot;SE1840&quot;, &quot;im tried&quot;));</span>
+<span class="nc" id="L71">    }</span>
+
+    @Test
+    public void updateSession_UTCID01() throws SQLException {
+<span class="fc" id="L75">        transact.Session session = new transact.Session();</span>
+<span class="fc" id="L76">        session.setGroupId(&quot;SE1817&quot;);</span>
+<span class="fc" id="L77">        Session s = new Session();</span>
+<span class="fc" id="L78">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L79">        course.setId(&quot;PRJ301&quot;);</span>
+<span class="fc" id="L80">        s.setCourse(course);</span>
+<span class="fc" id="L81">        s.setNo(1);</span>
+<span class="fc" id="L82">        session.setSession(s);</span>
+<span class="fc" id="L83">        session.setTakeStatus(true);</span>
+<span class="fc" id="L84">        Assert.assertEquals(true, dbContext.updateSession(session));</span>
+<span class="fc" id="L85">    }</span>
+
+    @Test
+    public void updateSession_UTCID02() throws SQLException {
+<span class="fc" id="L89">        transact.Session session = new transact.Session();</span>
+<span class="fc" id="L90">        session.setGroupId(&quot;SE1817&quot;);</span>
+<span class="fc" id="L91">        Session s = new Session();</span>
+<span class="fc" id="L92">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L93">        course.setId(&quot;PRJ301&quot;);</span>
+<span class="fc" id="L94">        s.setCourse(course);</span>
+<span class="fc" id="L95">        s.setNo(1);</span>
+<span class="fc" id="L96">        session.setSession(s);</span>
+<span class="fc" id="L97">        session.setTakeStatus(false);</span>
+<span class="fc" id="L98">        Assert.assertEquals(true, dbContext.updateSession(session));</span>
+<span class="fc" id="L99">    }</span>
+
+    @Test
+    public void updateSession_UTCID03() throws SQLException {
+<span class="fc" id="L103">        transact.Session session = new transact.Session();</span>
+<span class="fc" id="L104">        session.setGroupId(&quot;SE1817&quot;);</span>
+<span class="fc" id="L105">        Session s = new Session();</span>
+<span class="fc" id="L106">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L107">        course.setId(&quot;PRJ301&quot;);</span>
+<span class="fc" id="L108">        s.setCourse(course);</span>
+<span class="fc" id="L109">        s.setNo(11);</span>
+<span class="fc" id="L110">        session.setSession(s);</span>
+<span class="fc" id="L111">        session.setTakeStatus(true);</span>
+<span class="fc" id="L112">        Assert.assertEquals(false, dbContext.updateSession(session));</span>
+<span class="fc" id="L113">    }</span>
+
+    @Test
+    public void updateSession_UTCID04() throws SQLException {
+<span class="fc" id="L117">        transact.Session session = new transact.Session();</span>
+<span class="fc" id="L118">        session.setGroupId(&quot;SE1817&quot;);</span>
+<span class="fc" id="L119">        Session s = new Session();</span>
+<span class="fc" id="L120">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L121">        course.setId(&quot;PRJ301&quot;);</span>
+<span class="fc" id="L122">        s.setCourse(course);</span>
+<span class="fc" id="L123">        s.setNo(0);</span>
+<span class="fc" id="L124">        session.setSession(s);</span>
+<span class="fc" id="L125">        session.setTakeStatus(true);</span>
+<span class="fc" id="L126">        Assert.assertEquals(false, dbContext.updateSession(session));</span>
+<span class="fc" id="L127">    }</span>
+
+    @Test
+    public void updateSession_UTCID05() throws SQLException {
+<span class="fc" id="L131">        transact.Session session = new transact.Session();</span>
+<span class="fc" id="L132">        session.setGroupId(&quot;SE1817&quot;);</span>
+<span class="fc" id="L133">        Session s = new Session();</span>
+<span class="fc" id="L134">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L135">        course.setId(&quot;SWT301&quot;);</span>
+<span class="fc" id="L136">        s.setCourse(course);</span>
+<span class="fc" id="L137">        s.setNo(7);</span>
+<span class="fc" id="L138">        session.setSession(s);</span>
+<span class="fc" id="L139">        session.setTakeStatus(true);</span>
+<span class="fc" id="L140">        Assert.assertEquals(false, dbContext.updateSession(session));</span>
+<span class="fc" id="L141">    }</span>
+
+    @Test
+    public void updateSession_UTCID06() throws SQLException {
+<span class="fc" id="L145">        transact.Session session = new transact.Session();</span>
+<span class="fc" id="L146">        session.setGroupId(&quot;SE1817&quot;);</span>
+<span class="fc" id="L147">        Session s = new Session();</span>
+<span class="fc" id="L148">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L149">        course.setId(&quot;SWT300c&quot;);</span>
+<span class="fc" id="L150">        s.setCourse(course);</span>
+<span class="fc" id="L151">        s.setNo(7);</span>
+<span class="fc" id="L152">        session.setSession(s);</span>
+<span class="fc" id="L153">        session.setTakeStatus(true);</span>
+<span class="fc" id="L154">        Assert.assertEquals(false, dbContext.updateSession(session));</span>
+<span class="fc" id="L155">    }</span>
+
+    @Test
+    public void updateSession_UTCID07() throws SQLException {
+<span class="fc" id="L159">        transact.Session session = new transact.Session();</span>
+<span class="fc" id="L160">        session.setGroupId(&quot;SE1817&quot;);</span>
+<span class="fc" id="L161">        Session s = new Session();</span>
+<span class="fc" id="L162">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L163">        course.setId(null);</span>
+<span class="fc" id="L164">        s.setCourse(course);</span>
+<span class="fc" id="L165">        s.setNo(7);</span>
+<span class="fc" id="L166">        session.setSession(s);</span>
+<span class="fc" id="L167">        session.setTakeStatus(true);</span>
+<span class="fc" id="L168">        Assert.assertEquals(false, dbContext.updateSession(session));</span>
+
+<span class="fc" id="L170">    }</span>
+
+    @Test
+    public void updateSession_UTCID08() throws SQLException {
+<span class="fc" id="L174">        transact.Session session = new transact.Session();</span>
+<span class="fc" id="L175">        session.setGroupId(&quot;SE1800&quot;);</span>
+<span class="fc" id="L176">        Session s = new Session();</span>
+<span class="fc" id="L177">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L178">        course.setId(&quot;PRJ301&quot;);</span>
+<span class="fc" id="L179">        s.setCourse(course);</span>
+<span class="fc" id="L180">        s.setNo(7);</span>
+<span class="fc" id="L181">        session.setSession(s);</span>
+<span class="fc" id="L182">        session.setTakeStatus(true);</span>
+<span class="fc" id="L183">        Assert.assertEquals(false, dbContext.updateSession(session));</span>
+<span class="fc" id="L184">    }</span>
+
+    @Test
+    public void updateSession_UTCID09() throws SQLException {
+<span class="fc" id="L188">        transact.Session session = new transact.Session();</span>
+<span class="fc" id="L189">        session.setGroupId(&quot;SE170482&quot;);</span>
+<span class="fc" id="L190">        Session s = new Session();</span>
+<span class="fc" id="L191">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L192">        course.setId(&quot;PRJ301&quot;);</span>
+<span class="fc" id="L193">        s.setCourse(course);</span>
+<span class="fc" id="L194">        s.setNo(7);</span>
+<span class="fc" id="L195">        session.setSession(s);</span>
+<span class="fc" id="L196">        session.setTakeStatus(true);</span>
+<span class="fc" id="L197">        Assert.assertEquals(false, dbContext.updateSession(session));</span>
+<span class="fc" id="L198">    }</span>
+
+    @Test
+    public void updateSession_UTCID10() throws SQLException {
+<span class="fc" id="L202">        transact.Session session = new transact.Session();</span>
+<span class="fc" id="L203">        session.setGroupId(null);</span>
+<span class="fc" id="L204">        Session s = new Session();</span>
+<span class="fc" id="L205">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L206">        course.setId(&quot;PRJ301&quot;);</span>
+<span class="fc" id="L207">        s.setCourse(course);</span>
+<span class="fc" id="L208">        s.setNo(7);</span>
+<span class="fc" id="L209">        session.setSession(s);</span>
+<span class="fc" id="L210">        session.setTakeStatus(true);</span>
+<span class="fc" id="L211">        Assert.assertEquals(false, dbContext.updateSession(session));</span>
+<span class="fc" id="L212">    }</span>
+
+    @Test
+    public void getCourseEnroll_UTCID01() throws SQLException, ParseException {
+<span class="fc" id="L216">        entity.Student student = new entity.Student();</span>
+<span class="fc" id="L217">        student.setId(&quot;hieutche170482&quot;);</span>
+<span class="fc" id="L218">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L219">        course.setId(&quot;PRJ301&quot;);</span>
+
+<span class="fc" id="L221">        Assert.assertEquals(1, dbContext.getCourseEnroll(student, course).getId());</span>
+<span class="fc" id="L222">    }</span>
+
+
+    @Test
+    public void getCourseEnroll_UTCID02() throws SQLException, ParseException {
+<span class="fc" id="L227">        entity.Student student = new entity.Student();</span>
+<span class="fc" id="L228">        student.setId(&quot;hieutche170482&quot;);</span>
+<span class="fc" id="L229">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L230">        course.setId(&quot;PRF192&quot;);</span>
+
+<span class="nc" id="L232">        Assert.assertEquals(0, dbContext.getCourseEnroll(student, course).getId());</span>
+<span class="nc" id="L233">    }</span>
+
+    @Test
+    public void getCourseEnroll_UTCID03() throws SQLException, ParseException {
+<span class="fc" id="L237">        entity.Student student = new entity.Student();</span>
+<span class="fc" id="L238">        student.setId(&quot;hieutche170482&quot;);</span>
+<span class="fc" id="L239">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L240">        course.setId(&quot;SWT301&quot;);</span>
+
+<span class="fc" id="L242">        Assert.assertEquals(0, dbContext.getCourseEnroll(student, course).getId());</span>
+<span class="fc" id="L243">    }</span>
+
+    @Test
+    public void getCourseEnroll_UTCID04() throws SQLException, ParseException {
+<span class="fc" id="L247">        entity.Student student = new entity.Student();</span>
+<span class="fc" id="L248">        student.setId(&quot;hieutche170482&quot;);</span>
+<span class="fc" id="L249">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L250">        course.setId(&quot;SWT301c&quot;);</span>
+
+<span class="fc" id="L252">        Assert.assertEquals(0, dbContext.getCourseEnroll(student, course).getId());</span>
+<span class="fc" id="L253">    }</span>
+
+    @Test
+    public void getCourseEnroll_UTCID05() throws SQLException, ParseException {
+<span class="fc" id="L257">        entity.Student student = new entity.Student();</span>
+<span class="fc" id="L258">        student.setId(&quot;hieutche170482&quot;);</span>
+<span class="fc" id="L259">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L260">        course.setId(null);</span>
+
+<span class="fc" id="L262">        Assert.assertEquals(0, dbContext.getCourseEnroll(student, course).getId());</span>
+<span class="fc" id="L263">    }</span>
+
+    @Test
+    public void getCourseEnroll_UTCID06() throws SQLException, ParseException {
+<span class="fc" id="L267">        entity.Student student = new entity.Student();</span>
+<span class="fc" id="L268">        student.setId(&quot;tranconghieu&quot;);</span>
+<span class="fc" id="L269">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L270">        course.setId(&quot;PRJ301&quot;);</span>
+
+<span class="fc" id="L272">        Assert.assertEquals(0, dbContext.getCourseEnroll(student, course).getId());</span>
+<span class="fc" id="L273">    }</span>
+
+    @Test
+    public void getCourseEnroll_UTCID07() throws SQLException, ParseException {
+<span class="fc" id="L277">        entity.Student student = new entity.Student();</span>
+<span class="fc" id="L278">        student.setId(this.generateString(33));</span>
+<span class="fc" id="L279">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L280">        course.setId(&quot;PRJ301&quot;);</span>
+
+<span class="fc" id="L282">        Assert.assertEquals(0, dbContext.getCourseEnroll(student, course).getId());</span>
+<span class="fc" id="L283">    }</span>
+
+    @Test
+    public void getCourseEnroll_UTCID08() throws SQLException, ParseException {
+<span class="fc" id="L287">        entity.Student student = new entity.Student();</span>
+<span class="fc" id="L288">        student.setId(null);</span>
+<span class="fc" id="L289">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L290">        course.setId(&quot;PRJ301&quot;);</span>
+
+<span class="fc" id="L292">        Assert.assertEquals(0, dbContext.getCourseEnroll(student, course).getId());</span>
+<span class="fc" id="L293">    }</span>
+
+    @Test
+    public void insertCourseEnroll_UTCID01() throws SQLException {
+<span class="fc" id="L297">        dbContext.deleteCourseEnroll(&quot;HaiNTHE170492&quot;, &quot;PRJ301&quot;, 5);</span>
+<span class="fc" id="L298">        Assert.assertEquals(true,</span>
+<span class="fc" id="L299">                dbContext.insertCourseEnroll(&quot;HaiNTHE170492&quot;, &quot;PRJ301&quot;, &quot;SE1817&quot;, 5));</span>
+<span class="fc" id="L300">    }</span>
+
+    @Test
+    public void insertCourseEnroll_UTCID02() throws SQLException {
+<span class="fc" id="L304">        dbContext.deleteCourseEnroll(&quot;HaiNTHE170492&quot;, &quot;PRJ301&quot;, 5);</span>
+<span class="pc" id="L305">        Assert.assertEquals(false,</span>
+<span class="nc" id="L306">                dbContext.insertCourseEnroll(&quot;HaiNTHE170492&quot;, &quot;PRJ301&quot;, &quot;SE1817&quot;, 1));</span>
+<span class="nc" id="L307">    }</span>
+
+    @Test
+    public void insertCourseEnroll_UTCID03() throws SQLException {
+<span class="fc" id="L311">        dbContext.deleteCourseEnroll(&quot;HaiNTHE170492&quot;, &quot;PRJ301&quot;, 5);</span>
+<span class="pc" id="L312">        Assert.assertEquals(false,</span>
+<span class="nc" id="L313">                dbContext.insertCourseEnroll(&quot;HaiNTHE170492&quot;, &quot;PRJ301&quot;, &quot;SE1817&quot;, -1));</span>
+<span class="nc" id="L314">    }</span>
+
+    @Test
+    public void insertCourseEnroll_UTCID04() throws SQLException {
+<span class="fc" id="L318">        dbContext.deleteCourseEnroll(&quot;HaiNTHE170492&quot;, &quot;PRJ301&quot;, 5);</span>
+<span class="pc" id="L319">        Assert.assertEquals(false,</span>
+<span class="nc" id="L320">                dbContext.insertCourseEnroll(&quot;HaiNTHE170492&quot;, &quot;PRJ301&quot;, &quot;SE1800&quot;, 5));</span>
+<span class="nc" id="L321">    }</span>
+
+    @Test
+    public void insertCourseEnroll_UTCID05() throws SQLException {
+<span class="fc" id="L325">        dbContext.deleteCourseEnroll(&quot;HaiNTHE170492&quot;, &quot;PRJ301&quot;, 5);</span>
+<span class="pc" id="L326">        Assert.assertEquals(false,</span>
+<span class="nc" id="L327">                dbContext.insertCourseEnroll(&quot;HaiNTHE170492&quot;, &quot;PRJ301&quot;, &quot;SE170482&quot;, 5));</span>
+<span class="nc" id="L328">    }</span>
+
+    @Test
+    public void insertCourseEnroll_UTCID06() throws SQLException {
+<span class="fc" id="L332">        dbContext.deleteCourseEnroll(&quot;HaiNTHE170492&quot;, &quot;PRJ301&quot;, 5);</span>
+<span class="pc" id="L333">        Assert.assertEquals(false,</span>
+<span class="nc" id="L334">                dbContext.insertCourseEnroll(&quot;HaiNTHE170492&quot;, &quot;PRJ301&quot;, null, 5));</span>
+<span class="nc" id="L335">    }</span>
+
+    @Test
+    public void insertCourseEnroll_UTCID07() throws SQLException {
+<span class="fc" id="L339">        dbContext.deleteCourseEnroll(&quot;HaiNTHE170492&quot;, &quot;PRJ301&quot;, 5);</span>
+<span class="pc" id="L340">        Assert.assertEquals(false,</span>
+<span class="nc" id="L341">                dbContext.insertCourseEnroll(&quot;HaiNTHE170492&quot;, &quot;SWT301&quot;, &quot;SE1817&quot;, 5));</span>
+<span class="nc" id="L342">    }</span>
+
+    @Test
+    public void insertCourseEnroll_UTCID08() throws SQLException {
+<span class="fc" id="L346">        dbContext.deleteCourseEnroll(&quot;HaiNTHE170492&quot;, &quot;PRJ301&quot;, 5);</span>
+<span class="pc" id="L347">        Assert.assertEquals(false,</span>
+<span class="nc" id="L348">                dbContext.insertCourseEnroll(&quot;HaiNTHE170492&quot;, &quot;PRJ301&quot;, &quot;SE170482&quot;, 5));</span>
+<span class="nc" id="L349">    }</span>
+
+    @Test
+    public void insertCourseEnroll_UTCID09() throws SQLException {
+<span class="fc" id="L353">        dbContext.deleteCourseEnroll(&quot;HaiNTHE170492&quot;, &quot;PRJ301&quot;, 5);</span>
+<span class="pc" id="L354">        Assert.assertEquals(false,</span>
+<span class="nc" id="L355">                dbContext.insertCourseEnroll(&quot;HaiNTHE170492&quot;, &quot;PRJ301&quot;, null, 5));</span>
+<span class="nc" id="L356">    }</span>
+
+    @Test
+    public void insertCourseEnroll_UTCID10() throws SQLException {
+<span class="pc" id="L360">        Assert.assertEquals(false,</span>
+<span class="nc" id="L361">                dbContext.insertCourseEnroll(&quot;HieuTCHE17082&quot;, &quot;PRJ301&quot;, &quot;SE1817&quot;, 5));</span>
+<span class="nc" id="L362">    }</span>
+
+    @Test
+    public void insertCourseEnroll_UTCID11() throws SQLException {
+<span class="pc" id="L366">        Assert.assertEquals(false,</span>
+<span class="nc" id="L367">                dbContext.insertCourseEnroll(this.generateString(33), &quot;PRJ301&quot;, &quot;SE1817&quot;, 5));</span>
+<span class="nc" id="L368">    }</span>
+
+    @Test
+    public void insertCourseEnroll_UTCID12() throws SQLException {
+<span class="pc" id="L372">        Assert.assertEquals(false,</span>
+<span class="nc" id="L373">                dbContext.insertCourseEnroll(&quot;tranconghieu&quot;, &quot;PRJ301&quot;, &quot;SE1817&quot;, 5));</span>
+<span class="nc" id="L374">    }</span>
+
+    @Test
+    public void insertCourseEnroll_UTCID13() throws SQLException {
+<span class="pc" id="L378">        Assert.assertEquals(false,</span>
+<span class="nc" id="L379">                dbContext.insertCourseEnroll(null, &quot;PRJ301&quot;, &quot;SE1817&quot;, 5));</span>
+<span class="nc" id="L380">    }</span>
+
+    @Test
+    public void getClass_UTCID01() throws SQLException {
+<span class="fc" id="L384">        entity.Semester semester = new entity.Semester();</span>
+<span class="fc" id="L385">        semester.setId(5);</span>
+<span class="fc" id="L386">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L387">        course.setId(&quot;PRJ301&quot;);</span>
+<span class="fc" id="L388">        ArrayList&lt;String&gt; expected = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L389">        expected.add(&quot;SE1817&quot;);</span>
+<span class="fc" id="L390">        expected.add(&quot;SE1840&quot;);</span>
+<span class="fc" id="L391">        Assert.assertEquals(2, dbContext.getClass(semester, course).size());</span>
+<span class="fc" id="L392">    }</span>
+
+    @Test
+    public void getClass_UTCID02() throws SQLException {
+<span class="fc" id="L396">        entity.Semester semester = new entity.Semester();</span>
+<span class="fc" id="L397">        semester.setId(5);</span>
+<span class="fc" id="L398">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L399">        course.setId(&quot;SWT301&quot;);</span>
+<span class="fc" id="L400">        Assert.assertEquals(0, dbContext.getClass(semester, course).size());</span>
+<span class="fc" id="L401">    }</span>
+
+    @Test
+    public void getClass_UTCID03() throws SQLException {
+<span class="fc" id="L405">        entity.Semester semester = new entity.Semester();</span>
+<span class="fc" id="L406">        semester.setId(5);</span>
+<span class="fc" id="L407">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L408">        course.setId(&quot;SWT301c&quot;);</span>
+<span class="fc" id="L409">        Assert.assertEquals(0, dbContext.getClass(semester, course).size());</span>
+<span class="fc" id="L410">    }</span>
+
+    @Test
+    public void getClass_UTCID04() throws SQLException {
+<span class="fc" id="L414">        entity.Semester semester = new entity.Semester();</span>
+<span class="fc" id="L415">        semester.setId(5);</span>
+<span class="fc" id="L416">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L417">        course.setId(this.generateString(7));</span>
+<span class="fc" id="L418">        Assert.assertEquals(0, dbContext.getClass(semester, course).size());</span>
+<span class="fc" id="L419">    }</span>
+
+    @Test
+    public void getClass_UTCID05() throws SQLException {
+<span class="fc" id="L423">        entity.Semester semester = new entity.Semester();</span>
+<span class="fc" id="L424">        semester.setId(5);</span>
+<span class="fc" id="L425">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L426">        course.setId(null);</span>
+<span class="fc" id="L427">        Assert.assertEquals(0, dbContext.getClass(semester, course).size());</span>
+<span class="fc" id="L428">    }</span>
+
+    @Test
+    public void getClass_UTCID06() throws SQLException {
+<span class="fc" id="L432">        entity.Semester semester = new entity.Semester();</span>
+<span class="fc" id="L433">        semester.setId(1);</span>
+<span class="fc" id="L434">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L435">        course.setId(&quot;PRJ301&quot;);</span>
+<span class="fc" id="L436">        Assert.assertEquals(0, dbContext.getClass(semester, course).size());</span>
+<span class="fc" id="L437">    }</span>
+
+    @Test
+    public void getClass_UTCID07() throws SQLException {
+<span class="fc" id="L441">        entity.Semester semester = new entity.Semester();</span>
+<span class="fc" id="L442">        semester.setId(7);</span>
+<span class="fc" id="L443">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L444">        course.setId(&quot;PRJ301&quot;);</span>
+<span class="fc" id="L445">        Assert.assertEquals(0, dbContext.getClass(semester, course).size());</span>
+<span class="fc" id="L446">    }</span>
+
+    @Test
+    public void getClass_UTCID08() throws SQLException {
+<span class="fc" id="L450">        entity.Semester semester = new entity.Semester();</span>
+<span class="fc" id="L451">        semester.setId(-1);</span>
+<span class="fc" id="L452">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L453">        course.setId(&quot;PRJ301&quot;);</span>
+<span class="fc" id="L454">        Assert.assertEquals(0, dbContext.getClass(semester, course).size());</span>
+<span class="fc" id="L455">    }</span>
+
+<span class="fc" id="L457">    private final SimpleDateFormat dateFormat = new SimpleDateFormat(&quot;yyyy-MM-dd&quot;);</span>
+
+    @Test
+    public void getAttend_UTCID01() throws SQLException, ParseException {
+<span class="fc" id="L461">        entity.Student student = new entity.Student();</span>
+<span class="fc" id="L462">        student.setId(&quot;hieutche170482&quot;);</span>
+<span class="fc" id="L463">        Date startDate = dateFormat.parse(&quot;2024-05-27&quot;);</span>
+<span class="fc" id="L464">        entity.TimeSlot slot = new TimeSlot();</span>
+<span class="fc" id="L465">        slot.setSlot(3);</span>
+<span class="fc" id="L466">        Assert.assertEquals(1,</span>
+<span class="fc" id="L467">                dbContext.getAttend(student, startDate, slot).getEnrollId());</span>
+<span class="fc" id="L468">    }</span>
+
+    @Test
+    public void getAttend_UTCID02() throws SQLException, ParseException {
+<span class="fc" id="L472">        entity.Student student = new entity.Student();</span>
+<span class="fc" id="L473">        student.setId(&quot;hieutche170482&quot;);</span>
+<span class="fc" id="L474">        Date startDate = dateFormat.parse(&quot;2024-05-27&quot;);</span>
+<span class="fc" id="L475">        entity.TimeSlot slot = new TimeSlot();</span>
+<span class="fc" id="L476">        slot.setSlot(5);</span>
+<span class="fc" id="L477">        Assert.assertEquals(0,</span>
+<span class="fc" id="L478">                dbContext.getAttend(student, startDate, slot).getEnrollId());</span>
+<span class="fc" id="L479">    }</span>
+
+    @Test
+    public void getAttend_UTCID03() throws SQLException, ParseException {
+<span class="fc" id="L483">        entity.Student student = new entity.Student();</span>
+<span class="fc" id="L484">        student.setId(&quot;hieutche170482&quot;);</span>
+<span class="fc" id="L485">        Date startDate = dateFormat.parse(&quot;2024-05-27&quot;);</span>
+<span class="fc" id="L486">        entity.TimeSlot slot = new TimeSlot();</span>
+<span class="fc" id="L487">        slot.setSlot(7);</span>
+<span class="fc" id="L488">        Assert.assertEquals(0,</span>
+<span class="fc" id="L489">                dbContext.getAttend(student, startDate, slot).getEnrollId());</span>
+<span class="fc" id="L490">    }</span>
+
+    @Test
+    public void getAttend_UTCID04() throws SQLException, ParseException {
+<span class="fc" id="L494">        entity.Student student = new entity.Student();</span>
+<span class="fc" id="L495">        student.setId(&quot;hieutche170482&quot;);</span>
+<span class="fc" id="L496">        Date startDate = dateFormat.parse(&quot;2024-05-27&quot;);</span>
+<span class="fc" id="L497">        entity.TimeSlot slot = new TimeSlot();</span>
+<span class="fc" id="L498">        slot.setSlot(-1);</span>
+<span class="fc" id="L499">        Assert.assertEquals(0,</span>
+<span class="fc" id="L500">                dbContext.getAttend(student, startDate, slot).getEnrollId());</span>
+<span class="fc" id="L501">    }</span>
+
+    @Test
+    public void getAttend_UTCID05() throws SQLException, ParseException {
+<span class="fc" id="L505">        entity.Student student = new entity.Student();</span>
+<span class="fc" id="L506">        student.setId(&quot;hieutche170482&quot;);</span>
+<span class="fc" id="L507">        Date startDate = dateFormat.parse(&quot;2024-05-28&quot;);</span>
+<span class="fc" id="L508">        entity.TimeSlot slot = new TimeSlot();</span>
+<span class="fc" id="L509">        slot.setSlot(3);</span>
+<span class="fc" id="L510">        Assert.assertEquals(0,</span>
+<span class="fc" id="L511">                dbContext.getAttend(student, startDate, slot).getEnrollId());</span>
+<span class="fc" id="L512">    }</span>
+
+    @Test
+    public void getAttend_UTCID06() throws SQLException, ParseException {
+<span class="fc" id="L516">        entity.Student student = new entity.Student();</span>
+<span class="fc" id="L517">        student.setId(&quot;hieutche170482&quot;);</span>
+<span class="fc" id="L518">        Date startDate = null;</span>
+<span class="fc" id="L519">        entity.TimeSlot slot = new TimeSlot();</span>
+<span class="fc" id="L520">        slot.setSlot(3);</span>
+<span class="pc" id="L521">        Assert.assertEquals(0,</span>
+<span class="nc" id="L522">                dbContext.getAttend(student, startDate, slot).getEnrollId());</span>
+<span class="nc" id="L523">    }</span>
+
+    @Test
+    public void getAttend_UTCID07() throws SQLException, ParseException {
+<span class="fc" id="L527">        entity.Student student = new entity.Student();</span>
+<span class="fc" id="L528">        student.setId(&quot;hainthe170492&quot;);</span>
+<span class="fc" id="L529">        Date startDate =  dateFormat.parse(&quot;2024-05-27&quot;);</span>
+<span class="fc" id="L530">        entity.TimeSlot slot = new TimeSlot();</span>
+<span class="fc" id="L531">        slot.setSlot(3);</span>
+<span class="fc" id="L532">        Assert.assertEquals(0,</span>
+<span class="fc" id="L533">                dbContext.getAttend(student, startDate, slot).getEnrollId());</span>
+<span class="fc" id="L534">    }</span>
+
+    @Test
+    public void getAttend_UTCID09() throws SQLException, ParseException {
+<span class="fc" id="L538">        entity.Student student = new entity.Student();</span>
+<span class="fc" id="L539">        student.setId(&quot;tranconghieu&quot;);</span>
+<span class="fc" id="L540">        Date startDate =  dateFormat.parse(&quot;2024-05-27&quot;);</span>
+<span class="fc" id="L541">        entity.TimeSlot slot = new TimeSlot();</span>
+<span class="fc" id="L542">        slot.setSlot(3);</span>
+<span class="fc" id="L543">        Assert.assertEquals(0,</span>
+<span class="fc" id="L544">                dbContext.getAttend(student, startDate, slot).getEnrollId());</span>
+<span class="fc" id="L545">    }</span>
+
+    @Test
+    public void getAttend_UTCID10() throws SQLException, ParseException {
+<span class="fc" id="L549">        entity.Student student = new entity.Student();</span>
+<span class="fc" id="L550">        student.setId(this.generateString(33));</span>
+<span class="fc" id="L551">        Date startDate =  dateFormat.parse(&quot;2024-05-27&quot;);</span>
+<span class="fc" id="L552">        entity.TimeSlot slot = new TimeSlot();</span>
+<span class="fc" id="L553">        slot.setSlot(3);</span>
+<span class="fc" id="L554">        Assert.assertEquals(0,</span>
+<span class="fc" id="L555">                dbContext.getAttend(student, startDate, slot).getEnrollId());</span>
+<span class="fc" id="L556">    }</span>
+
+    @Test
+    public void getAttend_UTCID11() throws SQLException, ParseException {
+<span class="fc" id="L560">        entity.Student student = new entity.Student();</span>
+<span class="fc" id="L561">        student.setId(null);</span>
+<span class="fc" id="L562">        Date startDate =  dateFormat.parse(&quot;2024-05-27&quot;);</span>
+<span class="fc" id="L563">        entity.TimeSlot slot = new TimeSlot();</span>
+<span class="fc" id="L564">        slot.setSlot(3);</span>
+<span class="fc" id="L565">        Assert.assertEquals(0,</span>
+<span class="fc" id="L566">                dbContext.getAttend(student, startDate, slot).getEnrollId());</span>
+<span class="fc" id="L567">    }</span>
+
+    @Test
+    public void getAttends_UTCID01() throws SQLException, ParseException {
+<span class="fc" id="L571">        transact.Session session = new transact.Session();</span>
+<span class="fc" id="L572">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L573">        course.setId(&quot;PRJ301&quot;);</span>
+<span class="fc" id="L574">        session.setGroupId(&quot;SE1817&quot;);</span>
+<span class="fc" id="L575">        Session inner = new Session();</span>
+<span class="fc" id="L576">        inner.setCourse(course);</span>
+<span class="fc" id="L577">        inner.setNo(7);</span>
+<span class="fc" id="L578">        session.setSession(inner);</span>
+
+<span class="fc" id="L580">        Assert.assertEquals(1,</span>
+<span class="fc" id="L581">                dbContext.getAttends(session).size());</span>
+<span class="fc" id="L582">    }</span>
+
+    @Test
+    public void getAttends_UTCID02() throws SQLException, ParseException {
+<span class="fc" id="L586">        transact.Session session = new transact.Session();</span>
+<span class="fc" id="L587">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L588">        course.setId(&quot;PRJ301&quot;);</span>
+<span class="fc" id="L589">        session.setGroupId(&quot;SE1817&quot;);</span>
+<span class="fc" id="L590">        Session inner = new Session();</span>
+<span class="fc" id="L591">        inner.setCourse(course);</span>
+<span class="fc" id="L592">        inner.setNo(11);</span>
+<span class="fc" id="L593">        session.setSession(inner);</span>
+
+<span class="fc" id="L595">        Assert.assertEquals(0,</span>
+<span class="fc" id="L596">                dbContext.getAttends(session).size());</span>
+<span class="fc" id="L597">    }</span>
+
+    @Test
+    public void getAttends_UTCID03() throws SQLException, ParseException {
+<span class="fc" id="L601">        transact.Session session = new transact.Session();</span>
+<span class="fc" id="L602">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L603">        course.setId(&quot;PRJ301&quot;);</span>
+<span class="fc" id="L604">        session.setGroupId(&quot;SE1817&quot;);</span>
+<span class="fc" id="L605">        Session inner = new Session();</span>
+<span class="fc" id="L606">        inner.setCourse(course);</span>
+<span class="fc" id="L607">        inner.setNo(0);</span>
+<span class="fc" id="L608">        session.setSession(inner);</span>
+
+<span class="fc" id="L610">        Assert.assertEquals(0,</span>
+<span class="fc" id="L611">                dbContext.getAttends(session).size());</span>
+<span class="fc" id="L612">    }</span>
+
+    @Test
+    public void getAttends_UTCID04() throws SQLException, ParseException {
+<span class="fc" id="L616">        transact.Session session = new transact.Session();</span>
+<span class="fc" id="L617">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L618">        course.setId(&quot;PRJ301&quot;);</span>
+<span class="fc" id="L619">        session.setGroupId(&quot;SE1840&quot;);</span>
+<span class="fc" id="L620">        Session inner = new Session();</span>
+<span class="fc" id="L621">        inner.setCourse(course);</span>
+<span class="fc" id="L622">        inner.setNo(7);</span>
+<span class="fc" id="L623">        session.setSession(inner);</span>
+
+<span class="fc" id="L625">        Assert.assertEquals(0,</span>
+<span class="fc" id="L626">                dbContext.getAttends(session).size());</span>
+<span class="fc" id="L627">    }</span>
+
+    @Test
+    public void getAttends_UTCID05() throws SQLException, ParseException {
+<span class="fc" id="L631">        transact.Session session = new transact.Session();</span>
+<span class="fc" id="L632">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L633">        course.setId(&quot;PRJ301&quot;);</span>
+<span class="fc" id="L634">        session.setGroupId(&quot;SE1800&quot;);</span>
+<span class="fc" id="L635">        Session inner = new Session();</span>
+<span class="fc" id="L636">        inner.setCourse(course);</span>
+<span class="fc" id="L637">        inner.setNo(7);</span>
+<span class="fc" id="L638">        session.setSession(inner);</span>
+
+<span class="fc" id="L640">        Assert.assertEquals(0,</span>
+<span class="fc" id="L641">                dbContext.getAttends(session).size());</span>
+<span class="fc" id="L642">    }</span>
+
+    @Test
+    public void getAttends_UTCID06() throws SQLException, ParseException {
+<span class="fc" id="L646">        transact.Session session = new transact.Session();</span>
+<span class="fc" id="L647">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L648">        course.setId(&quot;PRJ301&quot;);</span>
+<span class="fc" id="L649">        session.setGroupId(&quot;SE170492&quot;);</span>
+<span class="fc" id="L650">        Session inner = new Session();</span>
+<span class="fc" id="L651">        inner.setCourse(course);</span>
+<span class="fc" id="L652">        inner.setNo(7);</span>
+<span class="fc" id="L653">        session.setSession(inner);</span>
+
+<span class="fc" id="L655">        Assert.assertEquals(0,</span>
+<span class="fc" id="L656">                dbContext.getAttends(session).size());</span>
+<span class="fc" id="L657">    }</span>
+
+    @Test
+    public void getAttends_UTCID07() throws SQLException, ParseException {
+<span class="fc" id="L661">        transact.Session session = new transact.Session();</span>
+<span class="fc" id="L662">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L663">        course.setId(&quot;PRJ301&quot;);</span>
+<span class="fc" id="L664">        session.setGroupId(null);</span>
+<span class="fc" id="L665">        Session inner = new Session();</span>
+<span class="fc" id="L666">        inner.setCourse(course);</span>
+<span class="fc" id="L667">        inner.setNo(7);</span>
+<span class="fc" id="L668">        session.setSession(inner);</span>
+
+<span class="fc" id="L670">        Assert.assertEquals(0,</span>
+<span class="fc" id="L671">                dbContext.getAttends(session).size());</span>
+<span class="fc" id="L672">    }</span>
+
+    @Test
+    public void getAttends_UTCID08() throws SQLException, ParseException {
+<span class="fc" id="L676">        transact.Session session = new transact.Session();</span>
+<span class="fc" id="L677">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L678">        course.setId(&quot;SWT301&quot;);</span>
+<span class="fc" id="L679">        session.setGroupId(&quot;SE1817&quot;);</span>
+<span class="fc" id="L680">        Session inner = new Session();</span>
+<span class="fc" id="L681">        inner.setCourse(course);</span>
+<span class="fc" id="L682">        inner.setNo(7);</span>
+<span class="fc" id="L683">        session.setSession(inner);</span>
+
+<span class="fc" id="L685">        Assert.assertEquals(0,</span>
+<span class="fc" id="L686">                dbContext.getAttends(session).size());</span>
+<span class="fc" id="L687">    }</span>
+
+    @Test
+    public void getAttends_UTCID09() throws SQLException, ParseException {
+<span class="fc" id="L691">        transact.Session session = new transact.Session();</span>
+<span class="fc" id="L692">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L693">        course.setId(&quot;SWT301c&quot;);</span>
+<span class="fc" id="L694">        session.setGroupId(&quot;SE1817&quot;);</span>
+<span class="fc" id="L695">        Session inner = new Session();</span>
+<span class="fc" id="L696">        inner.setCourse(course);</span>
+<span class="fc" id="L697">        inner.setNo(7);</span>
+<span class="fc" id="L698">        session.setSession(inner);</span>
+
+<span class="fc" id="L700">        Assert.assertEquals(0,</span>
+<span class="fc" id="L701">                dbContext.getAttends(session).size());</span>
+<span class="fc" id="L702">    }</span>
+
+    @Test
+    public void getAttends_UTCID10() throws SQLException, ParseException {
+<span class="fc" id="L706">        transact.Session session = new transact.Session();</span>
+<span class="fc" id="L707">        entity.Course course = new entity.Course();</span>
+<span class="fc" id="L708">        course.setId(null);</span>
+<span class="fc" id="L709">        session.setGroupId(&quot;SE1817&quot;);</span>
+<span class="fc" id="L710">        Session inner = new Session();</span>
+<span class="fc" id="L711">        inner.setCourse(course);</span>
+<span class="fc" id="L712">        inner.setNo(7);</span>
+<span class="fc" id="L713">        session.setSession(inner);</span>
+
+<span class="fc" id="L715">        Assert.assertEquals(0,</span>
+<span class="fc" id="L716">                dbContext.getAttends(session).size());</span>
+<span class="fc" id="L717">    }</span>
+
+        @Test
+        public void updateAttends_UTCID01() throws SQLException {
+<span class="fc" id="L721">            ArrayList&lt;transact.Attend&gt; arrayList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L722">            transact.Attend attend = new transact.Attend();</span>
+<span class="fc" id="L723">            attend.setEnrollId(1);</span>
+<span class="fc" id="L724">            Session inner = new Session();</span>
+<span class="fc" id="L725">            inner.setNo(7);</span>
+<span class="fc" id="L726">            transact.Session session = new transact.Session();</span>
+<span class="fc" id="L727">            session.setSession(inner);</span>
+<span class="fc" id="L728">            attend.setSession(session);</span>
+<span class="fc" id="L729">            entity.Lecturer modifier = new entity.Lecturer();</span>
+<span class="fc" id="L730">            modifier.setId(&quot;sonnt5&quot;);</span>
+<span class="fc" id="L731">            attend.setModifier(modifier);</span>
+<span class="fc" id="L732">            attend.setAttendStatus(false);</span>
+<span class="fc" id="L733">            attend.setComment(&quot;Not yet&quot;);</span>
+<span class="fc" id="L734">            arrayList.add(attend);</span>
+<span class="fc" id="L735">            Assert.assertEquals(true, dbContext.updateAttends(arrayList));</span>
+<span class="fc" id="L736">        }</span>
+
+        @Test
+        public void updateAttends_UTCID02() throws SQLException {
+<span class="fc" id="L740">            ArrayList&lt;transact.Attend&gt; arrayList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L741">            transact.Attend attend = new transact.Attend();</span>
+<span class="fc" id="L742">            attend.setEnrollId(1);</span>
+<span class="fc" id="L743">            Session inner = new Session();</span>
+<span class="fc" id="L744">            inner.setNo(7);</span>
+<span class="fc" id="L745">            transact.Session session = new transact.Session();</span>
+<span class="fc" id="L746">            session.setSession(inner);</span>
+<span class="fc" id="L747">            attend.setSession(session);</span>
+<span class="fc" id="L748">            entity.Lecturer modifier = new entity.Lecturer();</span>
+<span class="fc" id="L749">            modifier.setId(&quot;sonnt5&quot;);</span>
+<span class="fc" id="L750">            attend.setModifier(modifier);</span>
+<span class="fc" id="L751">            attend.setAttendStatus(true);</span>
+<span class="fc" id="L752">            attend.setComment(null);</span>
+<span class="fc" id="L753">            arrayList.add(attend);</span>
+<span class="fc" id="L754">            Assert.assertEquals(true, dbContext.updateAttends(arrayList));</span>
+<span class="fc" id="L755">        }</span>
+
+        @Test
+        public void updateAttends_UTCID03() throws SQLException {
+<span class="fc" id="L759">            ArrayList&lt;transact.Attend&gt; arrayList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L760">            transact.Attend attend = new transact.Attend();</span>
+<span class="fc" id="L761">            attend.setEnrollId(1);</span>
+<span class="fc" id="L762">            Session inner = new Session();</span>
+<span class="fc" id="L763">            inner.setNo(7);</span>
+<span class="fc" id="L764">            transact.Session session = new transact.Session();</span>
+<span class="fc" id="L765">            session.setSession(inner);</span>
+<span class="fc" id="L766">            attend.setSession(session);</span>
+<span class="fc" id="L767">            entity.Lecturer modifier = new entity.Lecturer();</span>
+<span class="fc" id="L768">            modifier.setId(&quot;hieutche170482&quot;);</span>
+<span class="fc" id="L769">            attend.setModifier(modifier);</span>
+<span class="fc" id="L770">            attend.setAttendStatus(true);</span>
+<span class="fc" id="L771">            attend.setComment(null);</span>
+<span class="fc" id="L772">            arrayList.add(attend);</span>
+<span class="nc" id="L773">            Assert.assertEquals(false, dbContext.updateAttends(arrayList));</span>
+<span class="nc" id="L774">        }</span>
+
+        @Test
+        public void updateAttends_UTCID04() throws SQLException {
+<span class="fc" id="L778">            ArrayList&lt;transact.Attend&gt; arrayList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L779">            transact.Attend attend = new transact.Attend();</span>
+<span class="fc" id="L780">            attend.setEnrollId(1);</span>
+<span class="fc" id="L781">            Session inner = new Session();</span>
+<span class="fc" id="L782">            inner.setNo(7);</span>
+<span class="fc" id="L783">            transact.Session session = new transact.Session();</span>
+<span class="fc" id="L784">            session.setSession(inner);</span>
+<span class="fc" id="L785">            attend.setSession(session);</span>
+<span class="fc" id="L786">            entity.Lecturer modifier = new entity.Lecturer();</span>
+<span class="fc" id="L787">            modifier.setId(null);</span>
+<span class="fc" id="L788">            attend.setModifier(modifier);</span>
+<span class="fc" id="L789">            attend.setAttendStatus(true);</span>
+<span class="fc" id="L790">            attend.setComment(null);</span>
+<span class="fc" id="L791">            arrayList.add(attend);</span>
+<span class="nc" id="L792">            Assert.assertEquals(false, dbContext.updateAttends(arrayList));</span>
+<span class="nc" id="L793">        }</span>
+
+        @Test
+        public void updateAttends_UTCID05() throws SQLException {
+<span class="fc" id="L797">            ArrayList&lt;transact.Attend&gt; arrayList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L798">            transact.Attend attend = new transact.Attend();</span>
+<span class="fc" id="L799">            attend.setEnrollId(1);</span>
+<span class="fc" id="L800">            Session inner = new Session();</span>
+<span class="fc" id="L801">            inner.setNo(7);</span>
+<span class="fc" id="L802">            transact.Session session = new transact.Session();</span>
+<span class="fc" id="L803">            session.setSession(inner);</span>
+<span class="fc" id="L804">            attend.setSession(session);</span>
+<span class="fc" id="L805">            entity.Lecturer modifier = new entity.Lecturer();</span>
+<span class="fc" id="L806">            modifier.setId(&quot;sonnt5&quot;);</span>
+<span class="fc" id="L807">            attend.setModifier(modifier);</span>
+<span class="fc" id="L808">            attend.setAttendStatus(true);</span>
+<span class="fc" id="L809">            attend.setComment(this.generateString(65));</span>
+<span class="fc" id="L810">            arrayList.add(attend);</span>
+<span class="nc" id="L811">            Assert.assertEquals(false, dbContext.updateAttends(arrayList));</span>
+<span class="nc" id="L812">        }</span>
+
+        @Test
+        public void updateAttends_UTCID06() throws SQLException {
+<span class="fc" id="L816">            ArrayList&lt;transact.Attend&gt; arrayList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L817">            transact.Attend attend = new transact.Attend();</span>
+<span class="fc" id="L818">            attend.setEnrollId(1);</span>
+<span class="fc" id="L819">            Session inner = new Session();</span>
+<span class="fc" id="L820">            inner.setNo(7);</span>
+<span class="fc" id="L821">            transact.Session session = new transact.Session();</span>
+<span class="fc" id="L822">            session.setSession(inner);</span>
+<span class="fc" id="L823">            attend.setSession(session);</span>
+<span class="fc" id="L824">            entity.Lecturer modifier = new entity.Lecturer();</span>
+<span class="fc" id="L825">            modifier.setId(&quot;sonnt5&quot;);</span>
+<span class="fc" id="L826">            attend.setModifier(modifier);</span>
+<span class="fc" id="L827">            attend.setAttendStatus(null);</span>
+<span class="fc" id="L828">            attend.setComment(null);</span>
+<span class="fc" id="L829">            arrayList.add(attend);</span>
+<span class="nc" id="L830">            Assert.assertEquals(true, dbContext.updateAttends(arrayList));</span>
+<span class="nc" id="L831">        }</span>
+
+        @Test
+        public void updateAttends_UTCID07() throws SQLException {
+<span class="fc" id="L835">            ArrayList&lt;transact.Attend&gt; arrayList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L836">            transact.Attend attend = new transact.Attend();</span>
+<span class="fc" id="L837">            attend.setEnrollId(1);</span>
+<span class="fc" id="L838">            Session inner = new Session();</span>
+<span class="fc" id="L839">            inner.setNo(11);</span>
+<span class="fc" id="L840">            transact.Session session = new transact.Session();</span>
+<span class="fc" id="L841">            session.setSession(inner);</span>
+<span class="fc" id="L842">            attend.setSession(session);</span>
+<span class="fc" id="L843">            entity.Lecturer modifier = new entity.Lecturer();</span>
+<span class="fc" id="L844">            modifier.setId(&quot;sonnt5&quot;);</span>
+<span class="fc" id="L845">            attend.setModifier(modifier);</span>
+<span class="fc" id="L846">            attend.setAttendStatus(true);</span>
+<span class="fc" id="L847">            attend.setComment(null);</span>
+<span class="fc" id="L848">            arrayList.add(attend);</span>
+<span class="fc" id="L849">            Assert.assertEquals(false, dbContext.updateAttends(arrayList));</span>
+<span class="fc" id="L850">        }</span>
+
+        @Test
+        public void updateAttends_UTCID08() throws SQLException {
+<span class="fc" id="L854">            ArrayList&lt;transact.Attend&gt; arrayList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L855">            transact.Attend attend = new transact.Attend();</span>
+<span class="fc" id="L856">            attend.setEnrollId(1);</span>
+<span class="fc" id="L857">            Session inner = new Session();</span>
+<span class="fc" id="L858">            inner.setNo(0);</span>
+<span class="fc" id="L859">            transact.Session session = new transact.Session();</span>
+<span class="fc" id="L860">            session.setSession(inner);</span>
+<span class="fc" id="L861">            attend.setSession(session);</span>
+<span class="fc" id="L862">            entity.Lecturer modifier = new entity.Lecturer();</span>
+<span class="fc" id="L863">            modifier.setId(&quot;sonnt5&quot;);</span>
+<span class="fc" id="L864">            attend.setModifier(modifier);</span>
+<span class="fc" id="L865">            attend.setAttendStatus(true);</span>
+<span class="fc" id="L866">            attend.setComment(null);</span>
+<span class="fc" id="L867">            arrayList.add(attend);</span>
+<span class="fc" id="L868">            Assert.assertEquals(false, dbContext.updateAttends(arrayList));</span>
+<span class="fc" id="L869">        }</span>
+
+        @Test
+        public void updateAttends_UTCID09() throws SQLException {
+<span class="fc" id="L873">            ArrayList&lt;transact.Attend&gt; arrayList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L874">            transact.Attend attend = new transact.Attend();</span>
+<span class="fc" id="L875">            attend.setEnrollId(2);</span>
+<span class="fc" id="L876">            Session inner = new Session();</span>
+<span class="fc" id="L877">            inner.setNo(7);</span>
+<span class="fc" id="L878">            transact.Session session = new transact.Session();</span>
+<span class="fc" id="L879">            session.setSession(inner);</span>
+<span class="fc" id="L880">            attend.setSession(session);</span>
+<span class="fc" id="L881">            entity.Lecturer modifier = new entity.Lecturer();</span>
+<span class="fc" id="L882">            modifier.setId(&quot;sonnt5&quot;);</span>
+<span class="fc" id="L883">            attend.setModifier(modifier);</span>
+<span class="fc" id="L884">            attend.setAttendStatus(true);</span>
+<span class="fc" id="L885">            attend.setComment(null);</span>
+<span class="fc" id="L886">            arrayList.add(attend);</span>
+<span class="nc" id="L887">            Assert.assertEquals(false, dbContext.updateAttends(arrayList));</span>
+<span class="nc" id="L888">        }</span>
+
+        @Test
+        public void updateAttends_UTCID10() throws SQLException {
+<span class="fc" id="L892">            ArrayList&lt;transact.Attend&gt; arrayList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L893">            transact.Attend attend = new transact.Attend();</span>
+<span class="fc" id="L894">            attend.setEnrollId(7);</span>
+<span class="fc" id="L895">            Session inner = new Session();</span>
+<span class="fc" id="L896">            inner.setNo(7);</span>
+<span class="fc" id="L897">            transact.Session session = new transact.Session();</span>
+<span class="fc" id="L898">            session.setSession(inner);</span>
+<span class="fc" id="L899">            attend.setSession(session);</span>
+<span class="fc" id="L900">            entity.Lecturer modifier = new entity.Lecturer();</span>
+<span class="fc" id="L901">            modifier.setId(&quot;sonnt5&quot;);</span>
+<span class="fc" id="L902">            attend.setModifier(modifier);</span>
+<span class="fc" id="L903">            attend.setAttendStatus(true);</span>
+<span class="fc" id="L904">            attend.setComment(null);</span>
+<span class="fc" id="L905">            arrayList.add(attend);</span>
+<span class="fc" id="L906">            Assert.assertEquals(false, dbContext.updateAttends(arrayList));</span>
+<span class="fc" id="L907">        }</span>
+
+        @Test
+        public void updateAttends_UTCID11() throws SQLException {
+<span class="fc" id="L911">            ArrayList&lt;transact.Attend&gt; arrayList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L912">            transact.Attend attend = new transact.Attend();</span>
+<span class="fc" id="L913">            attend.setEnrollId(-1);</span>
+<span class="fc" id="L914">            Session inner = new Session();</span>
+<span class="fc" id="L915">            inner.setNo(7);</span>
+<span class="fc" id="L916">            transact.Session session = new transact.Session();</span>
+<span class="fc" id="L917">            session.setSession(inner);</span>
+<span class="fc" id="L918">            attend.setSession(session);</span>
+<span class="fc" id="L919">            entity.Lecturer modifier = new entity.Lecturer();</span>
+<span class="fc" id="L920">            modifier.setId(&quot;sonnt5&quot;);</span>
+<span class="fc" id="L921">            attend.setModifier(modifier);</span>
+<span class="fc" id="L922">            attend.setAttendStatus(true);</span>
+<span class="fc" id="L923">            attend.setComment(null);</span>
+<span class="fc" id="L924">            arrayList.add(attend);</span>
+<span class="fc" id="L925">            Assert.assertEquals(false, dbContext.updateAttends(arrayList));</span>
+<span class="fc" id="L926">        }</span>
+
+    @Test
+    public void getSession_1_UTCID01() throws SQLException, ParseException {
+<span class="fc" id="L930">        Assert.assertEquals(true,</span>
+<span class="pc bpc" id="L931" title="1 of 2 branches missed.">                dbContext.getSession(&quot;SE1817&quot;, &quot;PRJ301&quot;, 7) != null);</span>
+<span class="fc" id="L932">    }</span>
+
+    @Test
+    public void getSession_1_UTCID02() throws SQLException, ParseException {
+<span class="fc" id="L936">        Assert.assertEquals(false,</span>
+<span class="pc bpc" id="L937" title="1 of 2 branches missed.">                dbContext.getSession(&quot;SE1817&quot;, &quot;PRJ301&quot;, 11).getSession() != null);</span>
+<span class="fc" id="L938">    }</span>
+
+    @Test
+    public void getSession_1_UTCID03() throws SQLException, ParseException {
+<span class="fc" id="L942">        Assert.assertEquals(false,</span>
+<span class="pc bpc" id="L943" title="1 of 2 branches missed.">                dbContext.getSession(&quot;SE1817&quot;, &quot;PRJ301&quot;, 0).getSession() != null);</span>
+<span class="fc" id="L944">    }</span>
+
+    @Test
+    public void getSession_1_UTCID04() throws SQLException, ParseException {
+<span class="fc" id="L948">        Assert.assertEquals(false,</span>
+<span class="pc bpc" id="L949" title="1 of 2 branches missed.">                dbContext.getSession(&quot;SE1817&quot;, &quot;SWT301&quot;, 1).getSession() != null);</span>
+<span class="fc" id="L950">    }</span>
+
+    @Test
+    public void getSession_1_UTCID05() throws SQLException, ParseException {
+<span class="fc" id="L954">        Assert.assertEquals(false,</span>
+<span class="pc bpc" id="L955" title="1 of 2 branches missed.">                dbContext.getSession(&quot;SE1817&quot;, &quot;SWT301c&quot;, 1).getSession() != null);</span>
+<span class="fc" id="L956">    }</span>
+
+    @Test
+    public void getSession_1_UTCID06() throws SQLException, ParseException {
+<span class="fc" id="L960">        Assert.assertEquals(false,</span>
+<span class="pc bpc" id="L961" title="1 of 2 branches missed.">                dbContext.getSession(&quot;SE1817&quot;, null, 1).getSession() != null);</span>
+<span class="fc" id="L962">    }</span>
+
+    @Test
+    public void getSession_1_UTCID07() throws SQLException, ParseException {
+<span class="fc" id="L966">        Assert.assertEquals(false,</span>
+<span class="pc bpc" id="L967" title="1 of 2 branches missed.">                dbContext.getSession(&quot;SE1840&quot;, &quot;PRJ301&quot;, 1).getSession() != null);</span>
+<span class="fc" id="L968">    }</span>
+
+    @Test
+    public void getSession_1_UTCID08() throws SQLException, ParseException {
+<span class="fc" id="L972">        Assert.assertEquals(false,</span>
+<span class="pc bpc" id="L973" title="1 of 2 branches missed.">                dbContext.getSession(&quot;SE1800&quot;, &quot;PRJ301&quot;, 1).getSession() != null);</span>
+<span class="fc" id="L974">    }</span>
+
+    @Test
+    public void getSession_1_UTCID09() throws SQLException, ParseException {
+<span class="fc" id="L978">        Assert.assertEquals(false,</span>
+<span class="pc bpc" id="L979" title="1 of 2 branches missed.">                dbContext.getSession(&quot;SE170482&quot;, &quot;PRJ301&quot;, 1).getSession() != null);</span>
+<span class="fc" id="L980">    }</span>
+
+    @Test
+    public void getSession_1_UTCID10() throws SQLException, ParseException {
+<span class="fc" id="L984">        Assert.assertEquals(false,</span>
+<span class="pc bpc" id="L985" title="1 of 2 branches missed.">                dbContext.getSession(null, &quot;PRJ301&quot;, 1).getSession() != null);</span>
+<span class="fc" id="L986">    }</span>
+
+    @Test
+    public void getSession_2_UTCID01() throws SQLException, ParseException {
+<span class="fc" id="L990">        entity.Lecturer lecturer = new entity.Lecturer();</span>
+<span class="fc" id="L991">        lecturer.setId(&quot;sonnt5&quot;);</span>
+<span class="fc" id="L992">        Date startDate = dateFormat.parse(&quot;2024-5-27&quot;);</span>
+<span class="fc" id="L993">        TimeSlot slot = new TimeSlot();</span>
+<span class="fc" id="L994">        slot.setSlot(3);</span>
+<span class="fc" id="L995">        Assert.assertEquals(true,</span>
+<span class="pc bpc" id="L996" title="1 of 2 branches missed.">                dbContext.getSession(lecturer, startDate, slot).getSession() != null);</span>
+<span class="fc" id="L997">    }</span>
+
+    @Test
+    public void getSession_2_UTCID02() throws SQLException, ParseException {
+<span class="fc" id="L1001">        entity.Lecturer lecturer = new entity.Lecturer();</span>
+<span class="fc" id="L1002">        lecturer.setId(&quot;sonnt5&quot;);</span>
+<span class="fc" id="L1003">        Date startDate = dateFormat.parse(&quot;2024-5-27&quot;);</span>
+<span class="fc" id="L1004">        TimeSlot slot = new TimeSlot();</span>
+<span class="fc" id="L1005">        slot.setSlot(5);</span>
+<span class="fc" id="L1006">        Assert.assertEquals(false,</span>
+<span class="pc bpc" id="L1007" title="1 of 2 branches missed.">                dbContext.getSession(lecturer, startDate, slot).getSession() != null);</span>
+<span class="fc" id="L1008">    }</span>
+
+    @Test
+    public void getSession_2_UTCID03() throws SQLException, ParseException {
+<span class="fc" id="L1012">        entity.Lecturer lecturer = new entity.Lecturer();</span>
+<span class="fc" id="L1013">        lecturer.setId(&quot;sonnt5&quot;);</span>
+<span class="fc" id="L1014">        Date startDate = dateFormat.parse(&quot;2024-5-27&quot;);</span>
+<span class="fc" id="L1015">        TimeSlot slot = new TimeSlot();</span>
+<span class="fc" id="L1016">        slot.setSlot(7);</span>
+<span class="fc" id="L1017">        Assert.assertEquals(false,</span>
+<span class="pc bpc" id="L1018" title="1 of 2 branches missed.">                dbContext.getSession(lecturer, startDate, slot).getSession() != null);</span>
+<span class="fc" id="L1019">    }</span>
+
+    @Test
+    public void getSession_2_UTCID04() throws SQLException, ParseException {
+<span class="fc" id="L1023">        entity.Lecturer lecturer = new entity.Lecturer();</span>
+<span class="fc" id="L1024">        lecturer.setId(&quot;sonnt5&quot;);</span>
+<span class="fc" id="L1025">        Date startDate = dateFormat.parse(&quot;2024-5-27&quot;);</span>
+<span class="fc" id="L1026">        TimeSlot slot = new TimeSlot();</span>
+<span class="fc" id="L1027">        slot.setSlot(-1);</span>
+<span class="fc" id="L1028">        Assert.assertEquals(false,</span>
+<span class="pc bpc" id="L1029" title="1 of 2 branches missed.">                dbContext.getSession(lecturer, startDate, slot).getSession() != null);</span>
+<span class="fc" id="L1030">    }</span>
+
+    @Test
+    public void getSession_2_UTCID05() throws SQLException, ParseException {
+<span class="fc" id="L1034">        entity.Lecturer lecturer = new entity.Lecturer();</span>
+<span class="fc" id="L1035">        lecturer.setId(&quot;sonnt5&quot;);</span>
+<span class="fc" id="L1036">        Date startDate = dateFormat.parse(&quot;2024-5-28&quot;);</span>
+<span class="fc" id="L1037">        TimeSlot slot = new TimeSlot();</span>
+<span class="fc" id="L1038">        slot.setSlot(3);</span>
+<span class="fc" id="L1039">        Assert.assertEquals(false,</span>
+<span class="pc bpc" id="L1040" title="1 of 2 branches missed.">                dbContext.getSession(lecturer, startDate, slot).getSession() != null);</span>
+<span class="fc" id="L1041">    }</span>
+
+    @Test
+    public void getSession_2_UTCID06() throws SQLException, ParseException {
+<span class="fc" id="L1045">        entity.Lecturer lecturer = new entity.Lecturer();</span>
+<span class="fc" id="L1046">        lecturer.setId(&quot;sonnt5&quot;);</span>
+<span class="fc" id="L1047">        Date startDate = null;</span>
+<span class="fc" id="L1048">        TimeSlot slot = new TimeSlot();</span>
+<span class="fc" id="L1049">        slot.setSlot(3);</span>
+<span class="pc" id="L1050">        Assert.assertEquals(false,</span>
+<span class="nc bnc" id="L1051" title="All 2 branches missed.">                dbContext.getSession(lecturer, startDate, slot).getSession() != null);</span>
+<span class="nc" id="L1052">    }</span>
+
+    @Test
+    public void getSession_2_UTCID07() throws SQLException, ParseException {
+<span class="fc" id="L1056">        entity.Lecturer lecturer = new entity.Lecturer();</span>
+<span class="fc" id="L1057">        lecturer.setId(&quot;lindtt43&quot;);</span>
+<span class="fc" id="L1058">        Date startDate = dateFormat.parse(&quot;2024-5-27&quot;);</span>
+<span class="fc" id="L1059">        TimeSlot slot = new TimeSlot();</span>
+<span class="fc" id="L1060">        slot.setSlot(3);</span>
+<span class="fc" id="L1061">        Assert.assertEquals(false,</span>
+<span class="pc bpc" id="L1062" title="1 of 2 branches missed.">                dbContext.getSession(lecturer, startDate, slot).getSession() != null);</span>
+<span class="fc" id="L1063">    }</span>
+
+    @Test
+    public void getSession_2_UTCID08() throws SQLException, ParseException {
+<span class="fc" id="L1067">        entity.Lecturer lecturer = new entity.Lecturer();</span>
+<span class="fc" id="L1068">        lecturer.setId(&quot;hieutc&quot;);</span>
+<span class="fc" id="L1069">        Date startDate = dateFormat.parse(&quot;2024-5-27&quot;);</span>
+<span class="fc" id="L1070">        TimeSlot slot = new TimeSlot();</span>
+<span class="fc" id="L1071">        slot.setSlot(3);</span>
+<span class="fc" id="L1072">        Assert.assertEquals(false,</span>
+<span class="pc bpc" id="L1073" title="1 of 2 branches missed.">                dbContext.getSession(lecturer, startDate, slot).getSession() != null);</span>
+<span class="fc" id="L1074">    }</span>
+
+    @Test
+    public void getSession_2_UTCID09() throws SQLException, ParseException {
+<span class="fc" id="L1078">        entity.Lecturer lecturer = new entity.Lecturer();</span>
+<span class="fc" id="L1079">        lecturer.setId(this.generateString(33));</span>
+<span class="fc" id="L1080">        Date startDate = dateFormat.parse(&quot;2024-5-27&quot;);</span>
+<span class="fc" id="L1081">        TimeSlot slot = new TimeSlot();</span>
+<span class="fc" id="L1082">        slot.setSlot(3);</span>
+<span class="fc" id="L1083">        Assert.assertEquals(false,</span>
+<span class="pc bpc" id="L1084" title="1 of 2 branches missed.">                dbContext.getSession(lecturer, startDate, slot).getSession() != null);</span>
+<span class="fc" id="L1085">    }</span>
+
+    @Test
+    public void getSession_2_UTCID10() throws SQLException, ParseException {
+<span class="fc" id="L1089">        entity.Lecturer lecturer = new entity.Lecturer();</span>
+<span class="fc" id="L1090">        lecturer.setId(null);</span>
+<span class="fc" id="L1091">        Date startDate = dateFormat.parse(&quot;2024-5-27&quot;);</span>
+<span class="fc" id="L1092">        TimeSlot slot = new TimeSlot();</span>
+<span class="fc" id="L1093">        slot.setSlot(3);</span>
+<span class="fc" id="L1094">        Assert.assertEquals(false,</span>
+<span class="pc bpc" id="L1095" title="1 of 2 branches missed.">                dbContext.getSession(lecturer, startDate, slot).getSession() != null);</span>
+<span class="fc" id="L1096">    }</span>
+
+
+    @Test
+    public void getGrade_UTCID01() throws SQLException, ClassNotFoundException, ParseException {
+<span class="fc" id="L1101">        entity.GradeItem gradeItem = new entity.GradeItem();</span>
+<span class="fc" id="L1102">        gradeItem.setId(&quot;PT1&quot;);</span>
+<span class="fc" id="L1103">        Assert.assertEquals(true,</span>
+<span class="pc bpc" id="L1104" title="1 of 2 branches missed.">                dbContext.getGrade(1, gradeItem) != null);</span>
+<span class="fc" id="L1105">    }</span>
+
+    @Test
+    public void getGrade_UTCID02() throws SQLException, ClassNotFoundException, ParseException {
+<span class="fc" id="L1109">        entity.GradeItem gradeItem = new entity.GradeItem();</span>
+<span class="fc" id="L1110">        gradeItem.setId(&quot;PT1Re&quot;);</span>
+<span class="fc" id="L1111">        Assert.assertEquals(false,</span>
+<span class="pc bpc" id="L1112" title="1 of 2 branches missed.">                dbContext.getGrade(1, gradeItem).getExam() != null);</span>
+<span class="fc" id="L1113">    }</span>
+
+    @Test
+    public void getGrade_UTCID03() throws SQLException, ClassNotFoundException, ParseException {
+<span class="fc" id="L1117">        entity.GradeItem gradeItem = new entity.GradeItem();</span>
+<span class="fc" id="L1118">        gradeItem.setId(&quot;Assignment&quot;);</span>
+<span class="fc" id="L1119">        Assert.assertEquals(false,</span>
+<span class="pc bpc" id="L1120" title="1 of 2 branches missed.">                dbContext.getGrade(1, gradeItem).getExam() != null);</span>
+<span class="fc" id="L1121">    }</span>
+
+    @Test
+    public void getGrade_UTCID04() throws SQLException, ClassNotFoundException, ParseException {
+<span class="fc" id="L1125">        entity.GradeItem gradeItem = new entity.GradeItem();</span>
+<span class="fc" id="L1126">        gradeItem.setId(null);</span>
+<span class="fc" id="L1127">        Assert.assertEquals(false,</span>
+<span class="pc bpc" id="L1128" title="1 of 2 branches missed.">                dbContext.getGrade(1, gradeItem).getExam() != null);</span>
+<span class="fc" id="L1129">    }</span>
+
+    @Test
+    public void getGrade_UTCID05() throws SQLException, ClassNotFoundException, ParseException {
+<span class="fc" id="L1133">        entity.GradeItem gradeItem = new entity.GradeItem();</span>
+<span class="fc" id="L1134">        gradeItem.setId(&quot;PT1&quot;);</span>
+<span class="fc" id="L1135">        Assert.assertEquals(false,</span>
+<span class="pc bpc" id="L1136" title="1 of 2 branches missed.">                dbContext.getGrade(2, gradeItem).getExam() != null);</span>
+<span class="fc" id="L1137">    }</span>
+
+    @Test
+    public void getGrade_UTCID06() throws SQLException, ClassNotFoundException, ParseException {
+<span class="fc" id="L1141">        entity.GradeItem gradeItem = new entity.GradeItem();</span>
+<span class="fc" id="L1142">        gradeItem.setId(&quot;PT1&quot;);</span>
+<span class="fc" id="L1143">        Assert.assertEquals(false,</span>
+<span class="pc bpc" id="L1144" title="1 of 2 branches missed.">                dbContext.getGrade(5, gradeItem).getExam() != null);</span>
+<span class="fc" id="L1145">    }</span>
+
+    @Test
+    public void getGrade_UTCID07() throws SQLException, ClassNotFoundException, ParseException {
+<span class="fc" id="L1149">        entity.GradeItem gradeItem = new entity.GradeItem();</span>
+<span class="fc" id="L1150">        gradeItem.setId(&quot;PT1&quot;);</span>
+<span class="fc" id="L1151">        Assert.assertEquals(false,</span>
+<span class="pc bpc" id="L1152" title="1 of 2 branches missed.">                dbContext.getGrade(-1, gradeItem).getExam() != null);</span>
+<span class="fc" id="L1153">    }</span>
+
+    @Test
+    public void deleteCourseEnroll_UTCID01() throws SQLException {
+<span class="pc" id="L1157">        Assert.assertEquals(true,</span>
+<span class="fc" id="L1158">                dbContext.deleteCourseEnroll(&quot;HaiNTHE170492&quot;, &quot;PRJ301&quot;,5));</span>
+
+<span class="nc" id="L1160">    }</span>
+
+    @Test
+    public void deleteCourseEnroll_UTCID02() throws SQLException {
+<span class="fc" id="L1164">        Assert.assertEquals(false,</span>
+<span class="fc" id="L1165">                dbContext.deleteCourseEnroll(&quot;HaiNTHE170492&quot;, &quot;PRJ301&quot;,1));</span>
+<span class="fc" id="L1166">    }</span>
+
+    @Test
+    public void deleteCourseEnroll_UTCID03() throws SQLException {
+<span class="fc" id="L1170">        Assert.assertThrows(IllegalArgumentException.class,</span>
+<span class="nc" id="L1171">                () -&gt; dbContext.deleteCourseEnroll(&quot;HaiNTHE170492&quot;, &quot;PRJ301&quot;,-1));</span>
+<span class="fc" id="L1172">    }</span>
+
+    @Test
+    public void deleteCourseEnroll_UTCID04() throws SQLException {
+<span class="fc" id="L1176">        Assert.assertEquals(false, dbContext.deleteCourseEnroll(&quot;HaiNTHE170492&quot;, &quot;PRF192&quot;,5));</span>
+<span class="fc" id="L1177">    }</span>
+
+    @Test
+    public void deleteCourseEnroll_UTCID05() throws SQLException {
+<span class="fc" id="L1181">        Assert.assertEquals(false, dbContext.deleteCourseEnroll(&quot;HaiNTHE170492&quot;, &quot;SWT302c&quot;,5));</span>
+<span class="fc" id="L1182">    }</span>
+
+    @Test
+    public void deleteCourseEnroll_UTCID06() throws SQLException {
+<span class="fc" id="L1186">         Assert.assertThrows(IllegalArgumentException.class,</span>
+<span class="nc" id="L1187">                () -&gt; dbContext.deleteCourseEnroll(&quot;HaiNTHE170492&quot;, null,5));</span>
+<span class="fc" id="L1188">    }</span>
+
+    @Test
+    public void deleteCourseEnroll_UTCID07() throws SQLException {
+<span class="fc" id="L1192">        Assert.assertEquals(false, dbContext.deleteCourseEnroll(&quot;HieuHieuHieu&quot;, &quot;PRJ301&quot;,5));</span>
+<span class="fc" id="L1193">    }</span>
+
+    @Test
+    public void deleteCourseEnroll_UTCID08() throws SQLException {
+<span class="fc" id="L1197">        Assert.assertEquals(false, dbContext.deleteCourseEnroll(this.generateString(33), &quot;PRJ301&quot;,5));</span>
+<span class="fc" id="L1198">    }</span>
+
+    @Test
+    public void deleteCourseEnroll_UTCID09W() throws SQLException {
+<span class="fc" id="L1202">         Assert.assertThrows(IllegalArgumentException.class,</span>
+<span class="nc" id="L1203">                () -&gt; dbContext.deleteCourseEnroll(null, &quot;PRJ301&quot;,5));</span>
+<span class="fc" id="L1204">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

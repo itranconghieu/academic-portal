@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Grade.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Ant</a> &gt; <a href="index.source.html" class="el_package">transact</a> &gt; <span class="el_source">Grade.java</span></div><h1>Grade.java</h1><pre class="source lang-java linenums">// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package transact;
+
+import entity.Exam;
+import entity.Student;
+
+/**
+ *
+ * @author End User
+ */
+<span class="fc" id="L16">public class Grade {</span>
+    private int enrollId;
+    private Student student;
+    private Exam exam;
+    private float value;
+    private String note;
+
+    public int getEnrollId() {
+<span class="nc" id="L24">        return enrollId;</span>
+    }
+
+    public void setEnrollId(int enrollId) {
+<span class="nc" id="L28">        this.enrollId = enrollId;</span>
+<span class="nc" id="L29">    }</span>
+    
+    public Student getStudent() {
+<span class="nc" id="L32">        return student;</span>
+    }
+
+    public void setStudent(Student student) {
+<span class="fc" id="L36">        this.student = student;</span>
+<span class="fc" id="L37">    }</span>
+
+    public Exam getExam() {
+<span class="fc" id="L40">        return exam;</span>
+    }
+
+    public void setExam(Exam exam) {
+<span class="fc" id="L44">        this.exam = exam;</span>
+<span class="fc" id="L45">    }</span>
+
+    public float getValue() {
+<span class="nc" id="L48">        return value;</span>
+    }
+
+    public void setValue(float value) {
+<span class="fc" id="L52">        this.value = value;</span>
+<span class="fc" id="L53">    }</span>
+
+    public String getNote() {
+<span class="nc" id="L56">        return note;</span>
+    }
+
+    public void setNote(String note) {
+<span class="fc" id="L60">        this.note = note;</span>
+<span class="fc" id="L61">    }</span>
+
+
+    
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AccountContext.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Ant</a> &gt; <a href="index.source.html" class="el_package">db</a> &gt; <span class="el_source">AccountContext.java</span></div><h1>AccountContext.java</h1><pre class="source lang-java linenums">// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package db;
+
+import entity.Account;
+import entity.Department;
+import entity.Lecturer;
+import entity.Major;
+import entity.Student;
+import entity.Permission;
+import entity.Role;
+import java.sql.*;
+import java.util.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+
+/**
+ *
+ * @author End User
+ */
+public class AccountContext extends Open{
+<span class="nc" id="L27">    public AccountContext () throws ClassNotFoundException, SQLException {</span>
+<span class="nc" id="L28">    }</span>
+
+
+<span class="nc" id="L31">    private final SimpleDateFormat df = new SimpleDateFormat(&quot;yyyy-MM-dd&quot;);</span>
+    public String generateAuthCode() {
+<span class="nc" id="L33">        StringBuilder authCode = new StringBuilder();</span>
+<span class="nc bnc" id="L34" title="All 2 branches missed.">        for (int i = 0; i &lt; 16; i++) {</span>
+<span class="nc" id="L35">            char character = 0;</span>
+<span class="nc bnc" id="L36" title="All 4 branches missed.">            while (!Character.isAlphabetic(character) &amp;&amp; !Character.isDigit(character)) {</span>
+<span class="nc" id="L37">                character = (char) (Math.floor(Math.random() * 100));</span>
+            }
+<span class="nc" id="L39">            authCode.append(character);</span>
+        }
+<span class="nc" id="L41">        return authCode.toString();</span>
+    }
+
+    public boolean removeAuthCode(String us, String authCode) throws SQLException {
+<span class="nc" id="L45">        String sql = &quot;UPDATE [dbo].[Authorize]\n&quot;</span>
+                + &quot;   SET [used] = 1\n&quot;
+                + &quot; WHERE [for] = ? and authCode = ?&quot;;
+<span class="nc" id="L48">        PreparedStatement p = cn.prepareStatement(sql);</span>
+<span class="nc" id="L49">        p.setString(1, us);</span>
+<span class="nc" id="L50">        p.setString(2, authCode);</span>
+<span class="nc" id="L51">        int affectedRow =  p.executeUpdate();</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">        return affectedRow &gt; 0;</span>
+    }
+
+    public String createAuthCode(String us) throws SQLException, ClassNotFoundException {
+<span class="nc" id="L56">        String authCode = generateAuthCode();</span>
+<span class="nc" id="L57">        String s = &quot;INSERT INTO [dbo].[Authorize]\n&quot;</span>
+                + &quot;           ([authCode]\n&quot;
+                + &quot;           ,[for])\n&quot;
+                + &quot;     VALUES\n&quot;
+                + &quot;           (?\n&quot;
+                + &quot;           ,?)&quot;;
+<span class="nc" id="L63">        PreparedStatement p = cn.prepareStatement(s);</span>
+<span class="nc" id="L64">        p.setString(1, authCode);</span>
+<span class="nc" id="L65">        p.setString(2, us);</span>
+<span class="nc" id="L66">        p.executeUpdate();</span>
+<span class="nc" id="L67">        return authCode;</span>
+    }
+
+    public boolean verifyAuthCode(String us, String authCode) throws SQLException, ParseException {
+<span class="nc" id="L71">        String s = &quot;SELECT [authId]\n&quot; +</span>
+&quot;      ,[authCode]\n&quot; +
+&quot;      ,[for]\n&quot; +
+&quot;      ,[used]\n&quot; +
+&quot;      ,[activeTime]\n&quot; +
+&quot;  FROM [dbo].[Authorize]\n&quot; +
+&quot;  where [for] = ? and authCode = ?;&quot;;
+<span class="nc" id="L78">        PreparedStatement p = cn.prepareStatement(s);</span>
+<span class="nc" id="L79">        p.setString(1, us);</span>
+<span class="nc" id="L80">        p.setString(2, authCode);</span>
+<span class="nc" id="L81">        ResultSet rs = p.executeQuery();</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        if (rs.next()) {</span>
+<span class="nc" id="L83">            Date activeTime = new SimpleDateFormat(&quot;yyyy-MM-dd hh:mm:ss.SSS&quot;).parse(rs.getString(&quot;activeTime&quot;));</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">            return new Date().getTime() &lt; activeTime.getTime() + 900000</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">                    &amp;&amp; !Boolean.valueOf(rs.getBoolean(&quot;used&quot;));</span>
+
+        }
+<span class="nc" id="L88">        return false;</span>
+    }
+
+    public Role getAccountRole(String us) throws SQLException, ParseException {
+<span class="nc" id="L92">        String sql = &quot;SELECT [username]\n&quot;</span>
+                + &quot;      ,[AccountRole].[roleId]\n&quot;
+                + &quot;      ,[name]&quot;
+                + &quot;      ,[addDate]\n&quot;
+                + &quot;      ,[expireDate]\n&quot;
+                + &quot;  FROM [dbo].[AccountRole]\n&quot;
+                + &quot;JOIN Role\n&quot;
+                + &quot;ON AccountRole.roleId = Role.roleId\n&quot;
+                + &quot;WHERE username = ?;&quot;;
+<span class="nc" id="L101">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="nc" id="L102">        ps.setString(1, us);</span>
+<span class="nc" id="L103">        Role role = new Role();</span>
+<span class="nc" id="L104">        ResultSet rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        if (rs.next()) {</span>
+<span class="nc" id="L106">            role.setId(rs.getInt(&quot;roleId&quot;));</span>
+<span class="nc" id="L107">            role.setName(rs.getString(&quot;name&quot;));</span>
+<span class="nc" id="L108">            role.setAddDate(df.parse(rs.getString(&quot;addDate&quot;)));</span>
+            try {
+<span class="nc" id="L110">                role.setExpireDate(df.parse(rs.getString(&quot;expireDate&quot;)));</span>
+<span class="nc" id="L111">            } catch (NullPointerException e) {</span>
+                /**/
+<span class="nc" id="L113">            }</span>
+        }
+<span class="nc" id="L115">        sql = &quot;SELECT RolePermission.permissionId, [name],  targetURL\n&quot;</span>
+                + &quot;FROM RolePermission\n&quot;
+                + &quot;JOIN Permission\n&quot;
+                + &quot;ON RolePermission.permissionId = Permission.permissionId\n&quot;
+                + &quot;WHERE roleId = ?;&quot;;
+<span class="nc" id="L120">        ps = cn.prepareStatement(sql);</span>
+<span class="nc" id="L121">        ps.setInt(1, role.getId());</span>
+<span class="nc" id="L122">        ArrayList&lt;Permission&gt; permissions = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L123">        rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">        while (rs.next()) {</span>
+<span class="nc" id="L125">            Permission permission = new Permission();</span>
+<span class="nc" id="L126">            permission.setId(rs.getInt(&quot;permissionId&quot;));</span>
+<span class="nc" id="L127">            permission.setName(rs.getString(&quot;name&quot;));</span>
+<span class="nc" id="L128">            permission.setTargetURL(rs.getString(&quot;targetURL&quot;));</span>
+<span class="nc" id="L129">            permissions.add(permission);</span>
+<span class="nc" id="L130">        }</span>
+<span class="nc" id="L131">        role.setPermissions(permissions);</span>
+<span class="nc" id="L132">        return role;</span>
+    }
+
+
+    public Account verifyAccount(String us, String pw) throws SQLException, ClassNotFoundException, ParseException {
+<span class="nc" id="L137">        String sql = &quot;SELECT [username]\n&quot;</span>
+                + &quot;      ,[password]\n&quot;
+                + &quot;      ,[googleId]\n&quot;
+                + &quot;  FROM [dbo].[Account]\n&quot;
+                + &quot;WHERE username = ? AND password = ?&quot;;
+<span class="nc" id="L142">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="nc" id="L143">        ps.setString(1, us);</span>
+<span class="nc" id="L144">        ps.setString(2, pw);</span>
+<span class="nc" id="L145">        Account ac = new Account();</span>
+<span class="nc" id="L146">        ResultSet rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">        if (rs.next()) {</span>
+<span class="nc" id="L148">            ac = this.getInformation(us);</span>
+<span class="nc" id="L149">            ac.setPassword(pw);</span>
+<span class="nc" id="L150">            ac.setGoogleId(rs.getString(&quot;googleId&quot;));</span>
+        }
+<span class="nc" id="L152">        return ac;</span>
+    }
+
+    public Account verifyGoogleAccountConnection(String googleId) throws SQLException, ParseException, ClassNotFoundException {
+<span class="nc" id="L156">        String sql = &quot;SELECT [username]\n&quot;</span>
+                + &quot;      ,[password]\n&quot;
+                + &quot;      ,[googleId]\n&quot;
+                + &quot;  FROM [dbo].[Account]\n&quot;
+                + &quot;WHERE googleId =  ?&quot;;
+<span class="nc" id="L161">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="nc" id="L162">        ps.setString(1, googleId);</span>
+<span class="nc" id="L163">        Account ac = new Account();</span>
+<span class="nc" id="L164">        ResultSet rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">        if (rs.next()) {</span>
+<span class="nc" id="L166">            ac = this.getInformation(rs.getString(&quot;username&quot;));</span>
+<span class="nc" id="L167">            ac.setPassword(rs.getString(&quot;password&quot;));</span>
+<span class="nc" id="L168">            ac.setGoogleId(googleId);</span>
+        }
+<span class="nc" id="L170">        return ac;</span>
+    }
+
+    public Account getInformation(String us) throws SQLException, ParseException, ClassNotFoundException {
+<span class="nc" id="L174">        Account ac = new Account();</span>
+<span class="nc" id="L175">        String sql = &quot;SELECT [lecturerId]\n&quot;</span>
+                + &quot;      ,[departmentId]\n&quot;
+                + &quot;      ,[surname]\n&quot;
+                + &quot;      ,[middleName]\n&quot;
+                + &quot;      ,[givenName]\n&quot;
+                + &quot;      ,[dateOfBirth]\n&quot;
+                + &quot;      ,[gender]\n&quot;
+                + &quot;      ,[address]\n&quot;
+                + &quot;      ,[imageURL]\n&quot;
+                + &quot;      ,[email]\n&quot;
+                + &quot;      ,[recognizeDate]\n&quot;
+                + &quot;  FROM [dbo].[Lecturer]\n&quot;
+                + &quot;  WHERE [lecturerId] = ?;&quot;;
+<span class="nc" id="L188">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="nc" id="L189">        ps.setString(1, us);</span>
+<span class="nc" id="L190">        ResultSet rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">        if (rs.next()) {</span>
+<span class="nc" id="L192">            Lecturer l = new Lecturer();</span>
+<span class="nc" id="L193">            l.setId(us);</span>
+<span class="nc" id="L194">            Department d = new DBContext()</span>
+<span class="nc" id="L195">                        .getDepartment(rs.getString(&quot;departmentId&quot;));</span>
+<span class="nc" id="L196">                l.setDepartment(d);</span>
+<span class="nc" id="L197">                ac = l;</span>
+<span class="nc" id="L198">        } else {</span>
+<span class="nc" id="L199">            sql = &quot;SELECT [studentId]\n&quot;</span>
+                    + &quot;      ,[majorId]\n&quot;
+                    + &quot;      ,[surname]\n&quot;
+                    + &quot;      ,[middleName]\n&quot;
+                    + &quot;      ,[givenName]\n&quot;
+                    + &quot;      ,[dateOfBirth]\n&quot;
+                    + &quot;      ,[gender]\n&quot;
+                    + &quot;      ,[address]\n&quot;
+                    + &quot;      ,[imageURL]\n&quot;
+                    + &quot;      ,[email]\n&quot;
+                    + &quot;      ,[recognizeDate]\n&quot;
+                    + &quot;  FROM [dbo].[Student]\n&quot;
+                    + &quot;WHERE studentId = ?;&quot;;
+<span class="nc" id="L212">            ps = cn.prepareStatement(sql);</span>
+<span class="nc" id="L213">            ps.setString(1, us);</span>
+<span class="nc" id="L214">            rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L215" title="All 2 branches missed.">            if (rs.next()) {</span>
+<span class="nc" id="L216">                Student s = new Student();</span>
+<span class="nc" id="L217">                s.setId(us);</span>
+<span class="nc" id="L218">                Major m = new DBContext().getMajor(rs.getString(&quot;majorId&quot;));</span>
+<span class="nc" id="L219">                s.setMajor(m);</span>
+<span class="nc" id="L220">                ac = s;</span>
+            }
+        }
+<span class="nc" id="L223">        ac.setSurname(rs.getString(&quot;surname&quot;));</span>
+<span class="nc" id="L224">        ac.setMiddleName(rs.getString(&quot;middleName&quot;));</span>
+<span class="nc" id="L225">        ac.setGivenName(rs.getString(&quot;givenName&quot;));</span>
+<span class="nc" id="L226">        ac.setDateOfBirth(df.parse(rs.getString(&quot;dateOfBirth&quot;)));</span>
+<span class="nc" id="L227">        ac.setGender(rs.getBoolean(&quot;gender&quot;));</span>
+<span class="nc" id="L228">        ac.setAddress(rs.getString(&quot;address&quot;));</span>
+<span class="nc" id="L229">        ac.setImageURL(rs.getString(&quot;imageURL&quot;));</span>
+<span class="nc" id="L230">        ac.setEmail(rs.getString(&quot;email&quot;));</span>
+<span class="nc" id="L231">        ac.setRecognizeDate(df.parse(rs.getString(&quot;recognizeDate&quot;)));</span>
+<span class="nc" id="L232">        return ac;</span>
+    }
+
+
+    public boolean updatePassword(String us, String newpw) throws SQLException {
+<span class="nc" id="L237">        String sql = &quot;UPDATE [dbo].[Account]\n&quot;</span>
+                + &quot;   SET [password] = ?\n&quot;
+                + &quot;WHERE username = ?;&quot;;
+<span class="nc" id="L240">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="nc" id="L241">        ps.setString(1, newpw);</span>
+<span class="nc" id="L242">        ps.setString(2, us);</span>
+
+<span class="nc" id="L244">        int affectedRow = ps.executeUpdate();</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">        return affectedRow &gt; 0;</span>
+    }
+
+    public boolean updateGoogleConnection(String us, String googleId) throws SQLException {
+<span class="nc" id="L249">        String sql = &quot;SELECT [googleId]&quot;</span>
+                + &quot;FROM [Account]&quot;
+                + &quot;WHERE googleId = ?;&quot;;
+<span class="nc" id="L252">        PreparedStatement ps = cn.prepareStatement(sql);</span>
+<span class="nc" id="L253">        ps.setString(1,  googleId);</span>
+<span class="nc" id="L254">        ResultSet rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L255" title="All 2 branches missed.">        if (rs.next()) {</span>
+<span class="nc" id="L256">            return false;</span>
+        } else {
+<span class="nc" id="L258">             sql = &quot;UPDATE [dbo].[Account]\n&quot;</span>
+                + &quot;   SET [googleId] = ?\n&quot;
+                + &quot;WHERE username = ?;&quot;;
+<span class="nc" id="L261">            ps = cn.prepareStatement(sql);</span>
+<span class="nc" id="L262">            ps.setString(1,  googleId);</span>
+<span class="nc" id="L263">            ps.setString(2, us);</span>
+<span class="nc" id="L264">            ps.executeUpdate();</span>
+<span class="nc" id="L265">            return true;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

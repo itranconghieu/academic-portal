@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MoveOutClassHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Ant</a> &gt; <a href="index.source.html" class="el_package">handler</a> &gt; <span class="el_source">MoveOutClassHandler.java</span></div><h1>MoveOutClassHandler.java</h1><pre class="source lang-java linenums">// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package handler;
+
+import entity.Account;
+import transact.Request;
+import entity.Role;
+import entity.Semester;
+import handler.authen.autho.PermissionAuthorization;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import db.DBContext;
+import transact.CourseEnroll;
+
+/**
+ *
+ * @author End User
+ */
+<span class="nc" id="L32">public class MoveOutClassHandler extends PermissionAuthorization{</span>
+
+    protected void processRequest(Account account, Role role, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        try {
+<span class="nc" id="L36">            String ic = req.getParameter(&quot;course&quot;);</span>
+<span class="nc" id="L37">            String moveToClass = req.getParameter(&quot;class&quot;);</span>
+<span class="nc" id="L38">            Date now = new Date();</span>
+<span class="nc" id="L39">            Semester currentSemester = new DBContext().getSemester(now);</span>
+<span class="nc" id="L40">            HashMap&lt;Integer, ArrayList&lt;CourseEnroll&gt;&gt; semesterMap = new DBContext().getCourseEnrolls(account.getId());</span>
+<span class="nc" id="L41">            ArrayList&lt;CourseEnroll&gt; courseEnrollList = semesterMap.get(currentSemester.getId());</span>
+<span class="nc" id="L42">            req.setAttribute(&quot;enrollList&quot;, courseEnrollList);</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">            CourseEnroll selectedEnroll = ic == null ? courseEnrollList.get(courseEnrollList.size() - 1)</span>
+<span class="nc" id="L44">                : courseEnrollList.get(Integer.parseInt(ic));</span>
+<span class="nc" id="L45">            req.setAttribute(&quot;selectedEnroll&quot;, selectedEnroll);</span>
+<span class="nc" id="L46">            ArrayList&lt;String&gt; classList = new DBContext().getClass(currentSemester, selectedEnroll.getCourse());</span>
+<span class="nc" id="L47">            req.setAttribute(&quot;classList&quot;, classList);</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">            if (moveToClass != null) {</span>
+<span class="nc" id="L49">                entity.Course enrolledCourse = selectedEnroll.getCourse();</span>
+<span class="nc" id="L50">                ArrayList&lt;transact.Session&gt; sessionList = new DBContext().getSessions(moveToClass, enrolledCourse.getId());</span>
+<span class="nc" id="L51">                req.setAttribute(&quot;sessionList&quot;, sessionList);</span>
+<span class="nc" id="L52">                req.setAttribute(&quot;classAfter&quot;, moveToClass);</span>
+            }
+<span class="nc" id="L54">            ArrayList&lt;Request&gt; requestList = new DBContext().getRequests(account.getId());</span>
+<span class="nc" id="L55">            req.setAttribute(&quot;requestList&quot;, requestList);</span>
+<span class="nc" id="L56">            req.getRequestDispatcher(&quot;move-out.jsp&quot;).forward(req, resp);</span>
+<span class="nc" id="L57">        } catch (ClassNotFoundException ex) {</span>
+<span class="nc" id="L58">            Logger.getLogger(MoveOutClassHandler.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L59">        } catch (SQLException ex) {</span>
+<span class="nc" id="L60">            Logger.getLogger(MoveOutClassHandler.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L61">        } catch (ParseException ex) {</span>
+<span class="nc" id="L62">            Logger.getLogger(MoveOutClassHandler.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L63">        }</span>
+<span class="nc" id="L64">    }</span>
+    
+    @Override
+    protected void doGet(Account account, Role role, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+<span class="nc" id="L68">        this.processRequest(account, role, req, resp);</span>
+<span class="nc" id="L69">    }</span>
+
+    @Override
+    protected void doPost(Account account, Role role, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+<span class="nc" id="L73">        this.processRequest(account, role, req, resp);</span>
+<span class="nc" id="L74">    }</span>
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

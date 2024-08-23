@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Account.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Ant</a> &gt; <a href="index.source.html" class="el_package">entity</a> &gt; <span class="el_source">Account.java</span></div><h1>Account.java</h1><pre class="source lang-java linenums">// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package entity;
+
+import java.util.Date;
+
+/**
+ *
+ * @author End User
+ */
+public class Account {
+    private String id;
+    private String password;
+    private Role role;
+    private String googleId;
+    private String surname;
+    private String middleName;
+    private String givenName;
+    private Date dateOfBirth;
+    private boolean gender;
+    private String address;
+    private String imageURL;
+    private String email;
+    private Date recognizeDate;
+
+<span class="fc" id="L30">    public Account() {</span>
+<span class="fc" id="L31">    }</span>
+
+    public String getId() {
+<span class="fc" id="L34">        return id;</span>
+    }
+
+    public void setId(String id) {
+<span class="fc" id="L38">        this.id = id;</span>
+<span class="fc" id="L39">    }</span>
+
+    public String getPassword() {
+<span class="nc" id="L42">        return password;</span>
+    }
+
+    public void setPassword(String password) {
+<span class="nc" id="L46">        this.password = password;</span>
+<span class="nc" id="L47">    }</span>
+
+    public Role getRole() {
+<span class="nc" id="L50">        return role;</span>
+    }
+
+    public void setRole(Role role) {
+<span class="nc" id="L54">        this.role = role;</span>
+<span class="nc" id="L55">    }</span>
+
+    public String getGoogleId() {
+<span class="nc" id="L58">        return googleId;</span>
+    }
+
+    public void setGoogleId(String googleId) {
+<span class="nc" id="L62">        this.googleId = googleId;</span>
+<span class="nc" id="L63">    }</span>
+
+    public String getSurname() {
+<span class="nc" id="L66">        return surname;</span>
+    }
+
+    public void setSurname(String surname) {
+<span class="fc" id="L70">        this.surname = surname;</span>
+<span class="fc" id="L71">    }</span>
+
+    public String getMiddleName() {
+<span class="nc" id="L74">        return middleName;</span>
+    }
+
+    public void setMiddleName(String middleName) {
+<span class="fc" id="L78">        this.middleName = middleName;</span>
+<span class="fc" id="L79">    }</span>
+
+    public String getGivenName() {
+<span class="nc" id="L82">        return givenName;</span>
+    }
+
+    public void setGivenName(String givenName) {
+<span class="fc" id="L86">        this.givenName = givenName;</span>
+<span class="fc" id="L87">    }</span>
+
+    public Date getDateOfBirth() {
+<span class="nc" id="L90">        return dateOfBirth;</span>
+    }
+
+    public void setDateOfBirth(Date dateOfBirth) {
+<span class="fc" id="L94">        this.dateOfBirth = dateOfBirth;</span>
+<span class="fc" id="L95">    }</span>
+
+    public boolean isMale() {
+<span class="nc" id="L98">        return gender;</span>
+    }
+
+    public void setGender(boolean gender) {
+<span class="fc" id="L102">        this.gender = gender;</span>
+<span class="fc" id="L103">    }</span>
+
+    public String getAddress() {
+<span class="nc" id="L106">        return address;</span>
+    }
+
+    public void setAddress(String address) {
+<span class="fc" id="L110">        this.address = address;</span>
+<span class="fc" id="L111">    }</span>
+
+    public String getImageURL() {
+<span class="nc" id="L114">        return imageURL;</span>
+    }
+
+    public void setImageURL(String imageURL) {
+<span class="fc" id="L118">        this.imageURL = imageURL;</span>
+<span class="fc" id="L119">    }</span>
+
+    public String getEmail() {
+<span class="nc" id="L122">        return email;</span>
+    }
+
+    public void setEmail(String email) {
+<span class="fc" id="L126">        this.email = email;</span>
+<span class="fc" id="L127">    }</span>
+
+    public Date getRecognizeDate() {
+<span class="nc" id="L130">        return recognizeDate;</span>
+    }
+
+    public void setRecognizeDate(Date recognizeDate) {
+<span class="fc" id="L134">        this.recognizeDate = recognizeDate;</span>
+<span class="fc" id="L135">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

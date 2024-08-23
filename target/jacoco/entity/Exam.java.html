@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Exam.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Ant</a> &gt; <a href="index.source.html" class="el_package">entity</a> &gt; <span class="el_source">Exam.java</span></div><h1>Exam.java</h1><pre class="source lang-java linenums">// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package entity;
+
+import java.time.LocalTime;
+import java.util.Date;
+
+/**
+ *
+ * @author End User
+ */
+<span class="fc" id="L16">public class Exam {</span>
+    private String examCode;
+    private Course course;
+    private GradeItem gradeItem;
+    private Date startTime;
+    private LocalTime duration;
+
+    public String getExamCode() {
+<span class="nc" id="L24">        return examCode;</span>
+    }
+
+    public void setExamCode(String examCode) {
+<span class="fc" id="L28">        this.examCode = examCode;</span>
+<span class="fc" id="L29">    }</span>
+
+    public Course getCourse() {
+<span class="nc" id="L32">        return course;</span>
+    }
+
+    public void setCourse(Course course) {
+<span class="fc" id="L36">        this.course = course;</span>
+<span class="fc" id="L37">    }</span>
+
+    public GradeItem getGradeItem() {
+<span class="nc" id="L40">        return gradeItem;</span>
+    }
+
+    public void setGradeItem(GradeItem gradeItem) {
+<span class="fc" id="L44">        this.gradeItem = gradeItem;</span>
+<span class="fc" id="L45">    }</span>
+
+    public Date getStartTime() {
+<span class="nc" id="L48">        return startTime;</span>
+    }
+
+    public void setStartTime(Date startTime) {
+<span class="fc" id="L52">        this.startTime = startTime;</span>
+<span class="fc" id="L53">    }</span>
+
+    public LocalTime getDuration() {
+<span class="nc" id="L56">        return duration;</span>
+    }
+
+    public void setDuration(LocalTime duration) {
+<span class="fc" id="L60">        this.duration = duration;</span>
+<span class="fc" id="L61">    }</span>
+    
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:jacoco="antlib:org.jacoco.ant" name="PRJ301" default="default" basedir=".">
+    <description>Builds, tests, and runs the project PRJ301.</description>
+    <import file="nbproject/build-impl.xml"/>
+
+    <!-- Properties -->
+    <property name="build.dir" value="build"/>
+    <property name="lib.dir" value="lib"/>
+    <property name="src.dir" location="src/java"/>
+    <property name="result.dir" location="target"/>
+    <property name="result.classes.dir" location="${result.dir}/classes"/>
+    <property name="result.test.dir" location="${result.dir}/test"/>
+    <property name="result.report.dir" location="${result.dir}/jacoco"/>
+    <property name="result.exec.file" location="${result.dir}/jacoco.exec"/>
+
+    <!-- Classpath -->
+    <path id="compile.classpath">
+        <fileset dir="${lib.dir}">
+            <include name="**/*.jar"/>
+            <include name="**/junit-jupiter-*.jar"/>
+        </fileset>
+        <pathelement location="${lib.dir}/hamcrest-core-1.3.jar"/>
+    </path>
+
+    <!-- JaCoCo Task Definition -->
+    <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+        <classpath path="${lib.dir}/jacoco/jacocoant.jar"/>
+    </taskdef>
+
+    <!-- Clean Target -->
+    <target name="clean">
+        <delete dir="${result.dir}"/>
+    </target>
+
+    <!-- Compile Target -->
+    <target name="compile">
+        <mkdir dir="${result.classes.dir}"/>
+        <javac srcdir="${src.dir}" destdir="${result.classes.dir}" debug="true" includeantruntime="false">
+            <classpath refid="compile.classpath"/>
+        </javac>
+
+    </target>
+
+
+    <!-- Test Target -->
+    <target name="test" depends="compile">
+        <jacoco:coverage destfile="${result.exec.file}">
+            <junit  fork="true">
+                <classpath>
+                    <path refid="compile.classpath"/>
+                    <pathelement path="${result.classes.dir}"/>
+                </classpath>
+                <formatter type="xml"/>
+                <test name="test.DBContextTest" fork="yes"></test>
+            </junit>
+        </jacoco:coverage>
+    </target>
+
+    <!-- Report Target -->
+    <target name="report" depends="test">
+        <jacoco:report>
+            <executiondata>
+                <file file="${result.exec.file}"/>
+            </executiondata>
+            <structure name="JaCoCo Ant">
+                <classfiles>
+                    <fileset dir="${result.classes.dir}"/>
+                </classfiles>
+                <sourcefiles encoding="UTF-8">
+                    <fileset dir="${src.dir}"/>
+                </sourcefiles>
+            </structure>
+            <html destdir="${result.report.dir}"/>
+            <csv destfile="${result.report.dir}/report.csv"/>
+            <xml destfile="${result.report.dir}/report.xml"/>
+        </jacoco:report>
+    </target>
+
+    <!-- Rebuild Target -->
+    <target name="rebuild" depends="clean,compile,test,report"/>
+
+    <!-- Default Target -->
+    <target name="default" depends="rebuild"/>
+</project>

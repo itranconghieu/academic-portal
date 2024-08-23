@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AttendanceReportHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Ant</a> &gt; <a href="index.source.html" class="el_package">handler</a> &gt; <span class="el_source">AttendanceReportHandler.java</span></div><h1>AttendanceReportHandler.java</h1><pre class="source lang-java linenums">// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package handler;
+
+import entity.Account;
+import entity.Semester;
+import entity.Student;
+import entity.Role;
+import handler.authen.autho.PermissionAuthorization;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import db.DBContext;
+import transact.Attend;
+import transact.CourseEnroll;
+
+/**
+ *
+ * @author End User
+ */
+<span class="nc" id="L33">public class AttendanceReportHandler extends PermissionAuthorization{</span>
+    private Student student;
+
+    protected void processRequest(Account account, Role role, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, ClassNotFoundException, SQLException, ParseException {
+<span class="nc" id="L37">        Date now = new Date();</span>
+<span class="nc" id="L38">        req.setAttribute(&quot;now&quot;, now);</span>
+<span class="nc bnc" id="L39" title="All 2 branches missed.">        if (role.have(&quot;/search&quot;)) {</span>
+<span class="nc" id="L40">            String studentId = req.getParameter(&quot;student&quot;);</span>
+<span class="nc" id="L41">            student = new DBContext().getStudent(studentId);</span>
+<span class="nc bnc" id="L42" title="All 6 branches missed.">            if ((studentId != null || studentId != &quot;&quot;) &amp;&amp; student.getId() != null) {</span>
+<span class="nc" id="L43">                new CookieHandler().addRecents(req, resp, studentId);</span>
+<span class="nc" id="L44">            } else resp.getWriter().print(&quot;Not found&quot;);</span>
+<span class="nc" id="L45">        } else {</span>
+            try {
+<span class="nc" id="L47">                student = (Student) account;</span>
+<span class="nc" id="L48">            } catch (Exception e) {</span>
+<span class="nc" id="L49">                resp.getWriter().print(&quot;Not yet&quot;);</span>
+<span class="nc" id="L50">            }</span>
+        }
+<span class="nc" id="L52">        String is = req.getParameter(&quot;semester&quot;);</span>
+<span class="nc" id="L53">        String ic = req.getParameter(&quot;course&quot;);</span>
+<span class="nc" id="L54">        ArrayList&lt;Semester&gt; semesterList = new DBContext().getSemesters(student.getId());</span>
+<span class="nc" id="L55">        req.setAttribute(&quot;semesterList&quot;, semesterList);</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        Semester selectedSemester = is == null ? semesterList.get(semesterList.size() - 1)</span>
+<span class="nc" id="L57">                : semesterList.get(Integer.parseInt(is));</span>
+<span class="nc" id="L58">        req.setAttribute(&quot;selectedSemester&quot;, selectedSemester);</span>
+<span class="nc" id="L59">        HashMap&lt;Integer, ArrayList&lt;CourseEnroll&gt;&gt; semesterMap = new DBContext().getCourseEnrolls(student.getId());</span>
+<span class="nc" id="L60">        ArrayList&lt;CourseEnroll&gt; courseEnrollList = semesterMap.get(selectedSemester.getId());</span>
+<span class="nc" id="L61">        req.setAttribute(&quot;enrollList&quot;, courseEnrollList);</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        CourseEnroll selectedEnroll = ic == null ? courseEnrollList.get(courseEnrollList.size() - 1)</span>
+<span class="nc" id="L63">                : courseEnrollList.get(Integer.parseInt(ic));</span>
+<span class="nc" id="L64">        req.setAttribute(&quot;selectedEnroll&quot;, selectedEnroll);</span>
+<span class="nc" id="L65">        ArrayList&lt;Attend&gt; attendList = new DBContext().getAttends(selectedEnroll.getId());</span>
+<span class="nc" id="L66">        req.setAttribute(&quot;attendList&quot;, attendList);</span>
+<span class="nc" id="L67">        int absentSession = 0;</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        for (Attend attend : attendList) {</span>
+<span class="nc bnc" id="L69" title="All 6 branches missed.">            if (attend.getSession().getStartDate().before(now) &amp;&amp; (attend.isPresent() == null || !attend.isPresent())) {</span>
+<span class="nc" id="L70">                absentSession++;</span>
+            }
+<span class="nc" id="L72">        }</span>
+<span class="nc" id="L73">        req.setAttribute(&quot;absentSession&quot;, ((float)absentSession / attendList.size()) * 100);</span>
+<span class="nc" id="L74">        req.getRequestDispatcher(&quot;attendance-report.jsp&quot;).forward(req, resp);</span>
+<span class="nc" id="L75">    }</span>
+
+    @Override
+    protected void doGet(Account account, Role role, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        try {
+<span class="nc" id="L80">            this.processRequest(account, role, req, resp);</span>
+<span class="nc" id="L81">        } catch (ClassNotFoundException ex) {</span>
+<span class="nc" id="L82">            Logger.getLogger(AttendanceReportHandler.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L83">        } catch (SQLException ex) {</span>
+<span class="nc" id="L84">            Logger.getLogger(AttendanceReportHandler.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L85">        } catch (ParseException ex) {</span>
+<span class="nc" id="L86">            Logger.getLogger(AttendanceReportHandler.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L87">        }</span>
+<span class="nc" id="L88">    }</span>
+
+    @Override
+    protected void doPost(Account account, Role role, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        try {
+<span class="nc" id="L93">            this.processRequest(account, role, req, resp);</span>
+<span class="nc" id="L94">        } catch (ClassNotFoundException ex) {</span>
+<span class="nc" id="L95">            Logger.getLogger(AttendanceReportHandler.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L96">        } catch (SQLException ex) {</span>
+<span class="nc" id="L97">            Logger.getLogger(AttendanceReportHandler.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L98">        } catch (ParseException ex) {</span>
+<span class="nc" id="L99">            Logger.getLogger(AttendanceReportHandler.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L100">        }</span>
+<span class="nc" id="L101">    }</span>
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

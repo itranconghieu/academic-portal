@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"db"},{"l":"entity"},{"l":"handler"},{"l":"handler.authen"},{"l":"handler.authen.autho"},{"l":"handler.login"},{"l":"handler.timetable"},{"l":"helper"},{"l":"transact"},{"l":"websocket"}];updateSearchResults();

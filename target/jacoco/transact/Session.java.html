@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Session.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Ant</a> &gt; <a href="index.source.html" class="el_package">transact</a> &gt; <span class="el_source">Session.java</span></div><h1>Session.java</h1><pre class="source lang-java linenums">// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package transact;
+
+import entity.Lecturer;
+import entity.Room;
+import entity.TimeSlot;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+
+/**
+ *
+ * @author End User
+ */
+public class Session {
+    private String groupId;
+    private entity.Session session;
+    private Lecturer lecturer;
+    private Boolean takeStatus;
+    private Room room;
+    private TimeSlot slot;
+    private Date startDate;
+    private String eduNextURL;
+    private String meetURL;
+
+<span class="fc" id="L32">    public Session() {</span>
+<span class="fc" id="L33">    }</span>
+
+    public String getGroupId() {
+<span class="fc" id="L36">        return groupId;</span>
+    }
+
+    public void setGroupId(String groupId) {
+<span class="fc" id="L40">        this.groupId = groupId;</span>
+<span class="fc" id="L41">    }</span>
+
+    public entity.Session getSession() {
+<span class="fc" id="L44">        return session;</span>
+    }
+
+    public void setSession(entity.Session session) {
+<span class="fc" id="L48">        this.session = session;</span>
+<span class="fc" id="L49">    }</span>
+
+    public Lecturer getLecturer() {
+<span class="nc" id="L52">        return lecturer;</span>
+    }
+
+    public void setLecturer(Lecturer lecturer) {
+<span class="fc" id="L56">        this.lecturer = lecturer;</span>
+<span class="fc" id="L57">    }</span>
+
+    public Boolean isTaked() {
+<span class="nc" id="L60">        return takeStatus;</span>
+    }
+
+    public void setTakeStatus(Boolean takeStatus) {
+<span class="fc" id="L64">        this.takeStatus = takeStatus;</span>
+<span class="fc" id="L65">    }</span>
+
+    public Room getRoom() {
+<span class="nc" id="L68">        return room;</span>
+    }
+
+    public void setRoom(Room room) {
+<span class="fc" id="L72">        this.room = room;</span>
+<span class="fc" id="L73">    }</span>
+
+    public TimeSlot getSlot() {
+<span class="nc" id="L76">        return slot;</span>
+    }
+
+    public void setSlot(TimeSlot slot) {
+<span class="fc" id="L80">        this.slot = slot;</span>
+<span class="fc" id="L81">    }</span>
+
+    public Date getStartDate() {
+<span class="nc" id="L84">        return startDate;</span>
+    }
+
+    public void setStartDate(Date startDate) {
+<span class="fc" id="L88">        this.startDate = startDate;</span>
+<span class="fc" id="L89">    }</span>
+
+    public String getEduNextURL() {
+<span class="nc" id="L92">        return eduNextURL;</span>
+    }
+
+    public void setEduNextURL(String eduNextURL) {
+<span class="fc" id="L96">        this.eduNextURL = eduNextURL;</span>
+<span class="fc" id="L97">    }</span>
+
+    public String getMeetURL() {
+<span class="nc" id="L100">        return meetURL;</span>
+    }
+
+    public void setMeetURL(String meetURL) {
+<span class="fc" id="L104">        this.meetURL = meetURL;</span>
+<span class="fc" id="L105">    }</span>
+    
+    public Date getStartTime() throws ParseException {
+<span class="nc" id="L108">        return new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;).parse(new SimpleDateFormat(&quot;yyyy-MM-dd&quot;).format(this.getStartDate())</span>
+<span class="nc" id="L109">         + &quot; &quot; + this.getSlot().getStartTime().format(DateTimeFormatter.ofPattern(&quot;HH:mm:ss&quot;)));</span>
+    }
+    public String startDateToString() {
+<span class="nc" id="L112">        return new SimpleDateFormat(&quot;EEE, MMMM dd&quot;).format(this.startDate);</span>
+    }
+    
+    public String slotToString() {
+<span class="nc" id="L116">        return this.slot.getStartTime()  + &quot; to &quot; + this.slot.getEndTime();</span>
+    }
+    @Override
+    public String toString() {
+<span class="nc" id="L120">        return this.groupId + &quot;, &quot; + this.session.getCourse().getId() + &quot; on &quot; + this.startDateToString() + &quot; from &quot; + this.slotToString();</span>
+    }
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LogoutHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Ant</a> &gt; <a href="index.source.html" class="el_package">handler</a> &gt; <span class="el_source">LogoutHandler.java</span></div><h1>LogoutHandler.java</h1><pre class="source lang-java linenums">// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package handler;
+
+import handler.authen.BasedAuthentication;
+import entity.Account;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+/**
+ *
+ * @author End User
+ */
+<span class="nc" id="L20">public class LogoutHandler extends BasedAuthentication{</span>
+    protected void processRequest(Account account, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+<span class="nc" id="L22">        req.getSession().removeAttribute(&quot;account&quot;);</span>
+<span class="nc" id="L23">        req.getSession().removeAttribute(&quot;chats&quot;);</span>
+<span class="nc" id="L24">        resp.sendRedirect(&quot;http://localhost:8080/Assignment/sign-in&quot;);</span>
+<span class="nc" id="L25">    }</span>
+    
+    @Override
+    protected void doGet(Account account, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+<span class="nc" id="L29">        this.processRequest(account, req, resp);</span>
+<span class="nc" id="L30">    }</span>
+
+    @Override
+    protected void doPost(Account account, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+<span class="nc" id="L34">        this.processRequest(account, req, resp);</span>
+<span class="nc" id="L35">    }</span>
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

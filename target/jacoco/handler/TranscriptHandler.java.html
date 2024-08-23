@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TranscriptHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Ant</a> &gt; <a href="index.source.html" class="el_package">handler</a> &gt; <span class="el_source">TranscriptHandler.java</span></div><h1>TranscriptHandler.java</h1><pre class="source lang-java linenums">// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package handler;
+
+import entity.Account;
+import entity.Course;
+import entity.CourseGrade;
+import entity.Curriculum;
+import entity.GradeItem;
+import entity.Major;
+import entity.Student;
+import entity.Role;
+import entity.Semester;
+import handler.authen.autho.PermissionAuthorization;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import db.DBContext;
+import transact.CourseEnroll;
+import transact.Grade;
+
+/**
+ *
+ * @author End User
+ */
+<span class="nc" id="L37">public class TranscriptHandler extends PermissionAuthorization {</span>
+    private Student student;
+
+    @Override
+    protected void doGet(Account account, Role role, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        try {
+<span class="nc bnc" id="L43" title="All 2 branches missed.">            if (role.have(&quot;/search&quot;)) {</span>
+<span class="nc" id="L44">                String studentId = req.getParameter(&quot;student&quot;);</span>
+<span class="nc" id="L45">                student = new DBContext().getStudent(studentId);</span>
+<span class="nc bnc" id="L46" title="All 6 branches missed.">                if ((studentId != null || studentId != &quot;&quot;) &amp;&amp; student.getId() != null)  {</span>
+<span class="nc" id="L47">                    new CookieHandler().addRecents(req, resp, studentId);</span>
+<span class="nc" id="L48">                } else resp.getWriter().print(&quot;Not found&quot;);</span>
+<span class="nc" id="L49">            } else {</span>
+                try {
+<span class="nc" id="L51">                    student = (Student) account;</span>
+<span class="nc" id="L52">                } catch (Exception e) {</span>
+<span class="nc" id="L53">                    resp.getWriter().print(&quot;Not yet&quot;);</span>
+<span class="nc" id="L54">                }</span>
+            }
+<span class="nc" id="L56">            req.setAttribute(&quot;student&quot;, student);</span>
+<span class="nc" id="L57">            Major major = student.getMajor();</span>
+<span class="nc" id="L58">            Curriculum curriculum = new DBContext().getCurriculum(major);</span>
+<span class="nc" id="L59">            req.setAttribute(&quot;curriculum&quot;, curriculum);</span>
+<span class="nc" id="L60">            ArrayList&lt;Course&gt; courseList = curriculum.getCourseList();</span>
+<span class="nc" id="L61">            HashMap&lt;String, CourseEnroll&gt; courseMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L62">            DBContext dbContext = new DBContext();</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">            for (Course course : courseList) {</span>
+<span class="nc" id="L64">                CourseEnroll courseEnroll = dbContext.getCourseEnroll(student, course);</span>
+<span class="nc" id="L65">                courseMap.put(course.getId(), courseEnroll);</span>
+<span class="nc" id="L66">            }</span>
+<span class="nc" id="L67">            req.setAttribute(&quot;courseMap&quot;, courseMap);</span>
+<span class="nc" id="L68">            String courseId = req.getParameter(&quot;course&quot;);</span>
+<span class="nc" id="L69">            String semesterId = req.getParameter(&quot;semester&quot;);</span>
+<span class="nc bnc" id="L70" title="All 4 branches missed.">            if (courseId != null &amp;&amp; semesterId != null) {</span>
+<span class="nc" id="L71">                Semester semester = new DBContext().getSemester(Integer.parseInt(semesterId));</span>
+<span class="nc" id="L72">                HashMap&lt;Integer, ArrayList&lt;CourseEnroll&gt;&gt; semesterMap = new DBContext().getCourseEnrolls(student.getId());</span>
+<span class="nc" id="L73">                ArrayList&lt;CourseEnroll&gt; courseEnrollList = semesterMap.get(semester.getId());</span>
+<span class="nc" id="L74">                req.setAttribute(&quot;courseEnrollList&quot;, courseEnrollList);</span>
+<span class="nc" id="L75">                Course course = new DBContext().getCourse(courseId);</span>
+<span class="nc" id="L76">                CourseGrade courseGrade = new DBContext().getCourseGrade(course);</span>
+<span class="nc" id="L77">                ArrayList&lt;GradeItem&gt; gradeItems = (ArrayList&lt;GradeItem&gt;) courseGrade.getGradeItems();</span>
+<span class="nc" id="L78">                HashMap&lt;String, ArrayList&lt;GradeItem&gt;&gt; itemMap = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">                for (GradeItem item : gradeItems) {</span>
+<span class="nc" id="L80">                    String category = item.getCategory().getName();</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">                    if (itemMap.get(category) == null) {</span>
+<span class="nc" id="L82">                        ArrayList&lt;GradeItem&gt; items = new ArrayList();</span>
+<span class="nc" id="L83">                        itemMap.put(category, items);</span>
+                    }
+<span class="nc" id="L85">                    itemMap.get(category).add(item);</span>
+<span class="nc" id="L86">                }</span>
+<span class="nc" id="L87">                req.setAttribute(&quot;itemMap&quot;, itemMap);</span>
+<span class="nc" id="L88">                CourseEnroll courseEnroll = courseMap.get(courseId);</span>
+<span class="nc" id="L89">                req.setAttribute(&quot;courseEnroll&quot;, courseEnroll);</span>
+<span class="nc" id="L90">                HashMap&lt;String, Grade&gt; gradeMap = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">                for (GradeItem item : gradeItems) {</span>
+<span class="nc" id="L92">                    gradeMap.put(courseEnroll.getCourse().getId() + &quot;/&quot; + item.getId(),</span>
+<span class="nc" id="L93">                            new DBContext().getGrade(courseEnroll.getId(), item));</span>
+<span class="nc" id="L94">                }</span>
+<span class="nc" id="L95">                req.setAttribute(&quot;gradeMap&quot;, gradeMap);</span>
+<span class="nc" id="L96">                req.setAttribute(&quot;courseGrade&quot;, courseGrade);</span>
+            }
+<span class="nc" id="L98">            req.getRequestDispatcher(&quot;transcript.jsp&quot;).forward(req, resp);</span>
+<span class="nc" id="L99">        } catch (ClassNotFoundException ex) {</span>
+<span class="nc" id="L100">            Logger.getLogger(TranscriptHandler.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L101">        } catch (SQLException ex) {</span>
+<span class="nc" id="L102">            Logger.getLogger(TranscriptHandler.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L103">        } catch (ParseException ex) {</span>
+<span class="nc" id="L104">            Logger.getLogger(TranscriptHandler.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L105">        }</span>
+<span class="nc" id="L106">    }</span>
+
+    @Override
+    protected void doPost(Account account,  Role role, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        
+<span class="nc" id="L111">    }</span>
+
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

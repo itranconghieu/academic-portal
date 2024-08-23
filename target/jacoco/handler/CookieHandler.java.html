@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CookieHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Ant</a> &gt; <a href="index.source.html" class="el_package">handler</a> &gt; <span class="el_source">CookieHandler.java</span></div><h1>CookieHandler.java</h1><pre class="source lang-java linenums">// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package handler;
+
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+/**
+ *
+ * @author End User
+ */
+<span class="nc" id="L19">public class CookieHandler {</span>
+
+    public String getValue(HttpServletRequest req, String name) {
+<span class="nc" id="L22">        Cookie[] cookies = req.getCookies();</span>
+<span class="nc bnc" id="L23" title="All 2 branches missed.">        for (Cookie c : cookies) {</span>
+<span class="nc bnc" id="L24" title="All 2 branches missed.">            if (c.getName().equalsIgnoreCase(name)) {</span>
+<span class="nc" id="L25">                return c.getValue();</span>
+            }
+        }
+<span class="nc" id="L28">        return null;</span>
+    }
+
+    public ArrayList&lt;String&gt; getRecentSearchResult(HttpServletRequest req) {
+<span class="nc" id="L32">        ArrayList&lt;String&gt; recents = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L33" title="All 2 branches missed.">        if (this.getValue(req, &quot;recents&quot;) != null) {</span>
+<span class="nc" id="L34">            recents.addAll(Arrays.asList(this.getValue(req, &quot;recents&quot;).split(&quot;/&quot;)));</span>
+        }
+<span class="nc" id="L36">        return recents;</span>
+    }
+
+    public void addRecents(HttpServletRequest req, HttpServletResponse resp, String recent) {
+<span class="nc" id="L40">        ArrayList&lt;String&gt; recentList = this.getRecentSearchResult(req);</span>
+<span class="nc bnc" id="L41" title="All 2 branches missed.">        if (!(recentList.contains(recent.toLowerCase()))) {</span>
+<span class="nc" id="L42">            recentList.add(recent);</span>
+<span class="nc" id="L43">            StringBuilder recentString = new StringBuilder();</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">            for (String i : recentList) {</span>
+<span class="nc" id="L45">                recentString.append('/').append(i);</span>
+<span class="nc" id="L46">            }</span>
+<span class="nc" id="L47">            Cookie recents = new Cookie(&quot;recents&quot;, recentString.toString().replace(&quot;/&quot;, &quot;&quot;));</span>
+<span class="nc" id="L48">            recents.setMaxAge(-1);</span>
+<span class="nc" id="L49">            resp.addCookie(recents);</span>
+        }
+<span class="nc" id="L51">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

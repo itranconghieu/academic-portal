@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Request.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Ant</a> &gt; <a href="index.source.html" class="el_package">transact</a> &gt; <span class="el_source">Request.java</span></div><h1>Request.java</h1><pre class="source lang-java linenums">// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package transact;
+
+import entity.Course;
+import entity.Student;
+import java.util.Date;
+
+/**
+ *
+ * @author End User
+ */
+<span class="nc" id="L17">public class Request {</span>
+    private int id;
+    private CourseEnroll courseEnroll;
+    private String toClass;
+    private String purpose;
+    private Boolean state;
+    private String response;
+    private Date sendTime;
+
+    public int getId() {
+<span class="nc" id="L27">        return id;</span>
+    }
+
+    public void setId(int id) {
+<span class="nc" id="L31">        this.id = id;</span>
+<span class="nc" id="L32">    }</span>
+
+    public CourseEnroll getCourseEnroll() {
+<span class="nc" id="L35">        return courseEnroll;</span>
+    }
+
+    public void setCourseEnroll(CourseEnroll courseEnroll) {
+<span class="nc" id="L39">        this.courseEnroll = courseEnroll;</span>
+<span class="nc" id="L40">    }</span>
+
+    public String getToClass() {
+<span class="nc" id="L43">        return toClass;</span>
+    }
+
+    public void setToClass(String toClass) {
+<span class="nc" id="L47">        this.toClass = toClass;</span>
+<span class="nc" id="L48">    }</span>
+
+    public String getPurpose() {
+<span class="nc" id="L51">        return purpose;</span>
+    }
+
+    public void setPurpose(String purpose) {
+<span class="nc" id="L55">        this.purpose = purpose;</span>
+<span class="nc" id="L56">    }</span>
+
+
+    public Boolean getState() {
+<span class="nc" id="L60">        return state;</span>
+    }
+
+    public void setState(Boolean state) {
+<span class="nc" id="L64">        this.state = state;</span>
+<span class="nc" id="L65">    }</span>
+
+    public String getResponse() {
+<span class="nc" id="L68">        return response;</span>
+    }
+
+    public void setResponse(String response) {
+<span class="nc" id="L72">        this.response = response;</span>
+<span class="nc" id="L73">    }</span>
+
+    public Date getSendTime() {
+<span class="nc" id="L76">        return sendTime;</span>
+    }
+
+    public void setSendTime(Date sendTime) {
+<span class="nc" id="L80">        this.sendTime = sendTime;</span>
+<span class="nc" id="L81">    }</span>
+    
+    
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

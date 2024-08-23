@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ViewWeek.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Ant</a> &gt; <a href="index.source.html" class="el_package">handler.timetable</a> &gt; <span class="el_source">ViewWeek.java</span></div><h1>ViewWeek.java</h1><pre class="source lang-java linenums">// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package handler.timetable;
+
+import entity.Account;
+import entity.Lecturer;
+import entity.Student;
+import entity.TimeSlot;
+import entity.Role;
+import helper.Week;
+import handler.authen.autho.PermissionAuthorization;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import db.DBContext;
+import transact.Attend;
+
+/**
+ *
+ * @author End User
+ */
+<span class="nc" id="L35">public class ViewWeek extends PermissionAuthorization{</span>
+    
+    protected void processRequest(Account account, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, ClassNotFoundException, SQLException, ParseException {
+<span class="nc" id="L38">        ArrayList&lt;TimeSlot&gt; timeSlots = new DBContext().getTimeSlots();</span>
+<span class="nc" id="L39">        req.setAttribute(&quot;timeSlots&quot;, timeSlots);</span>
+<span class="nc" id="L40">        Date now = new Date();</span>
+<span class="nc" id="L41">        String iw = req.getParameter(&quot;selected-week&quot;);</span>
+<span class="nc" id="L42">        String iy = req.getParameter(&quot;selected-year&quot;);</span>
+<span class="nc" id="L43">        int startYear = account.getRecognizeDate().getYear();</span>
+<span class="nc" id="L44">        int endYear = now.getYear();</span>
+<span class="nc" id="L45">        ArrayList&lt;Integer&gt; years = this.getYearList(startYear, endYear);</span>
+<span class="nc" id="L46">        req.setAttribute(&quot;years&quot;, years);</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">        int selectedYear = iy == null ? now.getYear()</span>
+<span class="nc" id="L48">                : years.get(Integer.parseInt(iy));</span>
+<span class="nc" id="L49">        req.setAttribute(&quot;selectedYear&quot;, selectedYear);</span>
+<span class="nc" id="L50">        ArrayList&lt;Week&gt; weeks = this.getWeekList(selectedYear);</span>
+<span class="nc" id="L51">        req.setAttribute(&quot;weeks&quot;, weeks);</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">        Week selectedWeek = iw == null ? this.getWeek(weeks, now)</span>
+<span class="nc" id="L53">                : weeks.get(Integer.parseInt(iw));</span>
+<span class="nc" id="L54">        req.setAttribute(&quot;selectedWeek&quot;, selectedWeek);</span>
+<span class="nc" id="L55">        HashMap&lt;String, Attend&gt; sessionMap = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        for (Date date = new Date(selectedWeek.getStartDate().getTime()); !date.after(selectedWeek.getEndDate()); date.setTime(date.getTime() + 86400000)) {</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">            for (TimeSlot slot : timeSlots) {</span>
+<span class="nc" id="L58">                String key = df.format(date) + &quot; &quot; + slot.getSlot();</span>
+<span class="nc" id="L59">                Attend t = new Attend();</span>
+                try {
+<span class="nc" id="L61">                    t = new DBContext().getAttend((Student) account, date, slot);</span>
+<span class="nc" id="L62">                } catch (Exception e) {</span>
+<span class="nc" id="L63">                    transact.Session s = new DBContext().getSession((Lecturer) account, date, slot);</span>
+<span class="nc" id="L64">                    t.setSession(s);</span>
+<span class="nc" id="L65">                }</span>
+<span class="nc bnc" id="L66" title="All 4 branches missed.">                if (t.getSession() != null || t != null) {</span>
+<span class="nc" id="L67">                     sessionMap.put(key, t);</span>
+                }
+<span class="nc" id="L69">            }</span>
+        }
+<span class="nc" id="L71">        req.setAttribute(&quot;sessionMap&quot;, sessionMap);</span>
+<span class="nc" id="L72">        req.getRequestDispatcher(&quot;view-week.jsp&quot;).forward(req, resp);</span>
+<span class="nc" id="L73">    }</span>
+
+
+    @Override
+    protected void doGet(Account account, Role role, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        try {
+<span class="nc" id="L79">            this.processRequest(account, req, resp);</span>
+<span class="nc" id="L80">        } catch (ClassNotFoundException ex) {</span>
+<span class="nc" id="L81">            Logger.getLogger(ViewWeek.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L82">        } catch (SQLException ex) {</span>
+<span class="nc" id="L83">            Logger.getLogger(ViewWeek.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L84">        } catch (ParseException ex) {</span>
+<span class="nc" id="L85">            Logger.getLogger(ViewWeek.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L86">        }</span>
+<span class="nc" id="L87">    }</span>
+
+    @Override
+    protected void doPost(Account account, Role role, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        try {
+<span class="nc" id="L92">            this.processRequest(account, req, resp);</span>
+<span class="nc" id="L93">        } catch (ClassNotFoundException ex) {</span>
+<span class="nc" id="L94">            Logger.getLogger(ViewWeek.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L95">        } catch (SQLException ex) {</span>
+<span class="nc" id="L96">            Logger.getLogger(ViewWeek.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L97">        } catch (ParseException ex) {</span>
+<span class="nc" id="L98">            Logger.getLogger(ViewWeek.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L99">        }</span>
+<span class="nc" id="L100">    }</span>
+    
+<span class="nc" id="L102">    private final SimpleDateFormat df = new SimpleDateFormat(&quot;yyyy-MM-dd&quot;);</span>
+
+    public ArrayList&lt;Integer&gt; getYearList(int startYear, int endYear) {
+<span class="nc" id="L105">        int localVar = startYear;</span>
+<span class="nc" id="L106">        ArrayList&lt;Integer&gt; yearList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L107">        int length = (endYear - localVar) + 1;</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        while (yearList.size() &lt; length) {</span>
+<span class="nc" id="L109">            yearList.add(localVar ++);</span>
+        }
+<span class="nc" id="L111">        return  yearList;</span>
+    }
+            
+    public ArrayList&lt;Week&gt; getWeekList(int year) throws ParseException {
+<span class="nc" id="L115">        ArrayList&lt;Week&gt; weekList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L116">        Date date = new Date();</span>
+<span class="nc" id="L117">        int day = 1;</span>
+        // Loop for searching the first monday;
+<span class="nc bnc" id="L119" title="All 2 branches missed.">        while (day &lt;= 7) {</span>
+<span class="nc" id="L120">            date = df.parse((year + 1900) + &quot;-01-&quot; + day);</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">            if (date.getDay() == 1) {</span>
+<span class="nc" id="L122">               break;</span>
+            }
+<span class="nc" id="L124">            day++;</span>
+        }
+<span class="nc bnc" id="L126" title="All 2 branches missed.">        while (weekList.size() &lt; 52) {</span>
+<span class="nc" id="L127">            Week week = new Week();</span>
+<span class="nc" id="L128">            Date startDate = new Date(date.getTime());</span>
+<span class="nc" id="L129">            week.setStartDate(startDate);</span>
+<span class="nc" id="L130">            Date endDate = new Date(startDate.getTime() + 604799000);</span>
+<span class="nc" id="L131">            week.setEndDate(endDate);</span>
+<span class="nc" id="L132">            weekList.add(week);</span>
+<span class="nc" id="L133">            date.setTime(date.getTime() + 604800000);</span>
+<span class="nc" id="L134">        }</span>
+<span class="nc" id="L135">        return weekList;</span>
+    }
+    
+    public Week getWeek(ArrayList&lt;Week&gt; weekList, Date date) {
+<span class="nc" id="L139">        Week week = new Week();</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">        for (Week i : weekList) {</span>
+<span class="nc" id="L141">            Date startDate = i.getStartDate();</span>
+<span class="nc" id="L142">            Date endDate = i.getEndDate();</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">            if ((date.getTime() &gt;= startDate.getTime())</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">                    &amp;&amp; (date.getTime() &lt;= endDate.getTime())) {</span>
+<span class="nc" id="L145">                week = i;</span>
+<span class="nc" id="L146">                break;</span>
+            }
+<span class="nc" id="L148">        }</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">        return week == null ? weekList.get(51) : week;</span>
+    } 
+
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
